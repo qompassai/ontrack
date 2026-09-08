@@ -35,6 +35,10 @@ screenshots) and requires your own machine or account access.
 - [x] `v2.0.0` git tag created and pushed, matching versionCode 201 — needed because the
       F-Droid build recipe (see F-Droid checklist) builds from a tag, and it's good
       practice for Play releases too.
+- [x] **Feature graphic** created at `playstore/feature-graphic.png` — exactly
+      1024×500, 24-bit RGB PNG (no alpha), on-brand navy background matching the app
+      icon's color, with the ONTrack wordmark, a minimal route/pin motif, and the
+      tagline "Smarter Routes for Field Teams".
 
 ## You still need to do
 
@@ -60,9 +64,7 @@ screenshots) and requires your own machine or account access.
       nothing in this repo has been compiled or run in this sandbox.
 
 ### 4. Missing visual assets (real gaps, not yet in the repo)
-- [ ] **Feature graphic** (1024×500 PNG/JPG) — referenced at
-      `playstore/feature-graphic.png` in `playstore/google-play.json` but that file does
-      not exist yet.
+- [x] ~~Feature graphic~~ — done, see above.
 - [ ] **Phone screenshots** — only one exists (`screenshots/ontrack-home.png`). Play
       requires at least 2, and recommends 4–8, of the actual running app.
 - [ ] **Tablet screenshots** — none exist. Optional but recommended if you declare
