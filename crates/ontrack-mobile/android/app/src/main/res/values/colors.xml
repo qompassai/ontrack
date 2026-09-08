@@ -2,4 +2,5 @@
 <resources>
     <color name="tds_navy">#002855</color>
     <color name="tds_accent">#00A3E0</color>
+    <color name="ic_launcher_background">#002855</color>
 </resources>
