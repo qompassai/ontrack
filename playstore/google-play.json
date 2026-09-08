@@ -54,11 +54,18 @@
     "privacyPolicyUrl": "https://qompass.ai/ontrack/privacy",
     "dataSafety": {
       "dataCollected": [
-        { "type": "Location", "purpose": "Routing", "shared": false },
-        { "type": "Crash logs", "purpose": "Diagnostics", "shared": false }
+        { "type": "Approximate location", "purpose": "App functionality (map centering, route start point)", "shared": true, "sharedWith": "Geocoding/routing provider you select (Nominatim, OSRM, or Google Maps), only when you use your current location as a stop" },
+        { "type": "Precise location", "purpose": "App functionality (map centering, route start point)", "shared": true, "sharedWith": "Geocoding/routing provider you select (Nominatim, OSRM, or Google Maps), only when you use your current location as a stop" },
+        { "type": "Addresses you enter", "purpose": "App functionality (geocoding and route optimization)", "shared": true, "sharedWith": "Geocoding/routing provider you select (Nominatim, OSRM, or Google Maps)" },
+        { "type": "Voice or sound recordings", "purpose": "App functionality (on-device speech-to-text for stop entry)", "shared": false, "note": "Processed entirely on-device via whisper.cpp; never transmitted" }
       ],
+      "dataNotCollected": ["Name", "Email address", "Contacts", "Payment info", "Photos or videos", "Analytics/usage data"],
       "permissions": [
-        { "name": "ACCESS_FINE_LOCATION", "reason": "Route optimization and map centering" }
+        { "name": "ACCESS_FINE_LOCATION", "reason": "Route optimization and map centering" },
+        { "name": "ACCESS_COARSE_LOCATION", "reason": "Fallback map centering when precise location is unavailable" },
+        { "name": "RECORD_AUDIO", "reason": "On-device voice-to-text entry of stop addresses" },
+        { "name": "READ_EXTERNAL_STORAGE", "reason": "Import job/address lists from files on API <=32 devices" },
+        { "name": "INTERNET", "reason": "Geocoding and route-distance lookups against the selected backend" }
       ]
     }
   }
