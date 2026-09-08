@@ -29,9 +29,13 @@ screenshots) and requires your own machine or account access.
 - [x] `playstore/google-play.json` Data Safety section updated to list every permission
       and data type actually collected (addresses, location, on-device voice), not just
       one of them.
-- [x] `assets/icon.png` and all 5 mipmap density buckets
-      (mdpi/hdpi/xhdpi/xxhdpi/xxxhdpi × `ic_launcher`/`ic_launcher_round`) are real,
-      correctly-sized PNGs — not placeholders.
+- [x] App icon redesigned with a real brand mark (checkmark flowing into a route line,
+      ending in a cyan pin dot) replacing the old flat-navy-square placeholder.
+      `assets/icon.png` (512×512 Play Store hi-res icon) and all 5 mipmap density
+      buckets (mdpi/hdpi/xhdpi/xxhdpi/xxxhdpi × `ic_launcher`/`ic_launcher_round`)
+      updated. Full adaptive-icon support added (`mipmap-anydpi-v26/ic_launcher.xml`
+      + `ic_launcher_round.xml`, foreground/background/monochrome layers) since
+      `minSdk` 26 already supports it — the app previously shipped legacy-only icons.
 - [x] `v2.0.0` git tag created and pushed, matching versionCode 201 — needed because the
       F-Droid build recipe (see F-Droid checklist) builds from a tag, and it's good
       practice for Play releases too.
