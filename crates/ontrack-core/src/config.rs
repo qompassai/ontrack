@@ -1,5 +1,5 @@
 // #################################################################
-// /qompassai/.GH/Qompass/ONTrack-rs/crates/ontrack-core/src/config.rs
+// /qompassai/ontrack/crates/ontrack-core/src/config.rs
 // Qompass AI Config
 // SPDX-License-Identifier: Apache-2.0
 // Copyright (c) 2026 Qompass AI

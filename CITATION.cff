@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: "ONTrack-rs"
+title: "ONTrack"
 message: "If you use this software, please cite it as below."
 authors:
   - family-names: "Porter"
@@ -8,15 +8,12 @@ authors:
     affiliation: "Qompass AI"
 version: "v2026-06-29"
 date-released: "2026-06-29"
-repository-code: "https://github.com/qompassai/ONTrack-rs"
+repository-code: "https://github.com/qompassai/ontrack"
 license: "Apache 2.0"
 keywords:
-  - AI
-  - Education
-  - Healthcare
-  - Post-Quantum Cryptography
-  - Quantum
-  - performance
+  - route-optimization
+  - field-service
+  - geocoding
   - rust
   - systems programming
 abstract: "Rust Based Route Optimization"

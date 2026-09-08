@@ -8,7 +8,7 @@ Play Console UI.
 This is the cause of:
 
 ```
-Google Api Error: Invalid request - Package not found: com.qompassai.ontrack.
+Google Api Error: Invalid request - Package not found: ai.qompass.ontrack.
 ```
 
 See the [fastlane docs](https://docs.fastlane.tools/actions/upload_to_play_store/#quick-start)
@@ -39,7 +39,7 @@ Store.") and [fastlane/fastlane#14686](https://github.com/fastlane/fastlane/issu
 Build the signed AAB on your workstation:
 
 ```bash
-cd ~/.GH/Qompass/ONTrack-rs
+cd ~/path/to/ontrack
 ./scripts/build-android.sh
 ls crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab
 ```
@@ -53,7 +53,7 @@ Then in Play Console:
    **Next ▸ Save**. You do NOT need to roll out yet — saving a draft is
    enough to register the package name with the API.
 
-The package name `com.qompassai.ontrack` is now bound to this app on the
+The package name `ai.qompass.ontrack` is now bound to this app on the
 API side. All future uploads can go through fastlane.
 
 ### 3. Wire up the service account (probably already done)
@@ -79,7 +79,7 @@ fastlane run validate_play_store_json_key \
 ### 4. Now fastlane will work
 
 ```bash
-cd ~/.GH/Qompass/ONTrack-rs
+cd ~/path/to/ontrack
 
 # Dry-run — validates AAB + credentials without uploading. Run this first.
 fastlane android validate
@@ -111,9 +111,9 @@ FASTLANE_TRACK=qompass-private fastlane android closed
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
-| `Package not found: com.qompassai.ontrack` | App not created on Console or no AAB uploaded yet | Follow §1 + §2 above |
+| `Package not found: ai.qompass.ontrack` | App not created on Console or no AAB uploaded yet | Follow §1 + §2 above |
 | `Unable to find the requested track - 'closed'` | Used UI name instead of API name | Use `internal` / `alpha` / `beta` / `production` |
-| `forbidden: APK has the wrong package name` | `applicationId` in gradle ≠ `package_name` in Appfile | Both must be `com.qompassai.ontrack` |
+| `forbidden: APK has the wrong package name` | `applicationId` in gradle ≠ `package_name` in Appfile | Both must be `ai.qompass.ontrack` |
 | `Google Api Error: applicationNotFound` | Service-account JSON belongs to a different Cloud project than the app | Recreate the JSON in the project linked to your Play developer account |
 | `apksNotAllowed: This Edit cannot upload APKs because Android App Bundles have been added.` | Trying to upload an APK after an AAB was uploaded | Use `aab:` only, set `skip_upload_apk: true` (already done) |
 

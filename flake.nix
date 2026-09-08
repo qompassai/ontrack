@@ -1,5 +1,5 @@
 {
-  description = "OnTrack-RS — TDS Telecom Field Route Optimizer (pure Rust)";
+  description = "OnTrack — TDS Telecom Field Route Optimizer (pure Rust)";
 
   inputs = {
     nixpkgs.url      = "github:NixOS/nixpkgs/nixos-unstable";
@@ -41,7 +41,7 @@
         ];
       in {
         devShells.default = pkgs.mkShell {
-          name = "ontrack-rs-linux";
+          name = "ontrack-linux";
           packages = [ rust pkgs.cargo-ndk pkgs.cmake pkgs.git ] ++ commonNativeBuildInputs ++ commonBuildInputs;
           shellHook = ''
             export PKG_CONFIG_PATH="${pkgs.openssl.dev}/lib/pkgconfig"
@@ -49,7 +49,7 @@
         };
 
         devShells.android = pkgs.mkShell {
-          name = "ontrack-rs-android";
+          name = "ontrack-android";
           packages = with pkgs; [
             rust cargo-ndk cmake git jdk17_headless
             androidenv.androidPkgs.androidsdk
@@ -63,7 +63,7 @@
         };
 
         devShells.windows = pkgs.mkShell {
-          name = "ontrack-rs-windows";
+          name = "ontrack-windows";
           packages = with pkgs; [
             rust
             pkgsCross.mingwW64.stdenv.cc

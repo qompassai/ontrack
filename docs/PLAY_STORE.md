@@ -1,6 +1,6 @@
 # Uploading OnTrack to Google Play Console
 
-A step-by-step runbook for shipping `ontrack-rs` to the Play Console
+A step-by-step runbook for shipping `ontrack` to the Play Console
 from an Arch Linux dev box.
 
 ## 1. Prerequisites (one-time)

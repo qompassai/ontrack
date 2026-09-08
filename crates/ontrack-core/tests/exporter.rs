@@ -26,7 +26,7 @@ fn waze_url_format() {
 #[test]
 fn csv_export_roundtrip() {
     let stops = vec!["123 Main".to_string(), "456 Elm".to_string()];
-    let path = std::env::temp_dir().join("ontrack-rs-test.csv");
+    let path = std::env::temp_dir().join("ontrack-test.csv");
     export_csv(&stops, &path).unwrap();
     let body = fs::read_to_string(&path).unwrap();
     assert!(body.starts_with("stop,address"));

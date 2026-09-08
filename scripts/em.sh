@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # #################################################################
-# /qompassai/.GH/Qompass/ONTrack-rs/scripts/em.sh
+# /qompassai/ontrack/scripts/em.sh
 # Qompass AI Em
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2026 Qompass AI
@@ -24,5 +24,5 @@ APP_PACKAGE="ai.qompass.ontrack"
 AVD_NAME="Pixel_6_API_34"
 emulator -avd "$AVD_NAME" -netdelay none -netspeed full &
 adb wait-for-device
-adb install -r "$PROJECT_ROOT/target/aarch64-linux-android/release/ontrack.apk"
+adb install -r "$PROJECT_ROOT/crates/ontrack-mobile/android/app/build/outputs/apk/release/app-release.apk"
 adb exec-out screencap -p > "$PROJECT_ROOT/screenshots/android-phone/home.png"

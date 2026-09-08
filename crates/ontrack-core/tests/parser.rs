@@ -3,7 +3,7 @@ use std::io::Write;
 
 #[test]
 fn parses_csv_with_header() {
-    let tmp = std::env::temp_dir().join("ontrack-rs-parser.csv");
+    let tmp = std::env::temp_dir().join("ontrack-parser.csv");
     let mut f = std::fs::File::create(&tmp).unwrap();
     writeln!(f, "address,note").unwrap();
     writeln!(f, "123 Main St Spokane WA,foo").unwrap();
@@ -20,7 +20,7 @@ fn parses_csv_with_header() {
 
 #[test]
 fn missing_address_column_is_error() {
-    let tmp = std::env::temp_dir().join("ontrack-rs-parser-bad.csv");
+    let tmp = std::env::temp_dir().join("ontrack-parser-bad.csv");
     let mut f = std::fs::File::create(&tmp).unwrap();
     writeln!(f, "street,city").unwrap();
     writeln!(f, "123 Main,Spokane").unwrap();

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(pwd)"
-APP_ID="${APP_ID:-com.qompassai.ontrack}"
+APP_ID="${APP_ID:-ai.qompass.ontrack}"
 DEFAULT_APK_PATH_1="$ROOT/crates/ontrack-mobile/android/app/build/outputs/apk/release/app-release.apk"
 DEFAULT_APK_PATH_2="$ROOT/crates/ontrack-mobile/android/app/build/outputs/apk/release/app-release.apk"
 APK_PATH="${APK_PATH:-}"

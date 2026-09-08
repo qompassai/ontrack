@@ -43,6 +43,14 @@ impl Default for SolverConfig {
 }
 
 fn route_cost(matrix: &[Vec<f64>], order: &[usize]) -> f64 {
+    // Precondition: every index in `order` must be a valid row/column into
+    // `matrix`, and `matrix` itself must be square. Both are guaranteed by
+    // `validate()` upstream, but we assert here too since this function is
+    // small enough to call directly from a future refactor or test.
+    let n = matrix.len();
+    debug_assert!(matrix.iter().all(|row| row.len() == n));
+    debug_assert!(order.iter().all(|&i| i < n));
+
     order
         .windows(2)
         .map(|w| matrix[w[0]][w[1]])
@@ -51,6 +59,10 @@ fn route_cost(matrix: &[Vec<f64>], order: &[usize]) -> f64 {
 
 fn nearest_neighbor(matrix: &[Vec<f64>], start: usize) -> Vec<usize> {
     let n = matrix.len();
+    assert!(n > 0, "nearest_neighbor called with an empty distance matrix");
+    assert!(matrix.iter().all(|row| row.len() == n), "nearest_neighbor requires a square matrix");
+    assert!(start < n, "start index {start} out of range [0, {n})");
+
     let mut visited = vec![false; n];
     let mut order = Vec::with_capacity(n);
     order.push(start);
@@ -70,11 +82,21 @@ fn nearest_neighbor(matrix: &[Vec<f64>], start: usize) -> Vec<usize> {
         visited[best.1] = true;
         order.push(best.1);
     }
+    // Postcondition: nearest-neighbor visits every reachable node at most
+    // once and returns a strict permutation prefix (no duplicates).
+    debug_assert!(order.len() <= n);
+    debug_assert!({
+        let mut seen = order.clone();
+        seen.sort_unstable();
+        seen.dedup();
+        seen.len() == order.len()
+    });
     order
 }
 
 fn two_opt(matrix: &[Vec<f64>], order: &mut Vec<usize>, max_passes: usize) {
     let n = order.len();
+    debug_assert!(order.iter().all(|&i| i < matrix.len()), "two_opt order contains an out-of-range index");
     if n < 4 {
         return;
     }
@@ -97,6 +119,10 @@ fn two_opt(matrix: &[Vec<f64>], order: &mut Vec<usize>, max_passes: usize) {
             break;
         }
     }
+
+    // Postcondition: 2-opt only reverses sub-slices in place, so the multiset
+    // of node indices must be unchanged after any number of passes.
+    debug_assert!(order.len() == n);
 }
 
 fn validate(locations: &[Location], matrix: &[Vec<f64>], depot_index: usize) -> Result<()> {

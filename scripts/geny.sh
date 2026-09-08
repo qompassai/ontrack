@@ -3,8 +3,8 @@
 # ----------------------------------------
 set -euo pipefail
 ROOT="$(pwd)"
-APP_ID="${APP_ID:-com.qompassai.ontrack}"
-APK_PATH="${APK_PATH:-$ROOT/ontrack-mobile/android/app/build/outputs/apk/release/app-release.apk}"
+APP_ID="${APP_ID:-ai.qompass.ontrack}"
+APK_PATH="${APK_PATH:-$ROOT/crates/ontrack-mobile/android/app/build/outputs/apk/release/app-release.apk}"
 SCREENSHOT_DIR="${SCREENSHOT_DIR:-$ROOT/screenshots}"
 ADB_BIN="${ADB_BIN:-adb}"
 usage()

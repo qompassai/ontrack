@@ -11,8 +11,8 @@ members = [
 version     = "2.0.0"
 edition     = "2021"
 authors     = ["Matt Porter <matt@aflabs.io>"]
-license     = "AGPL-3.0"
-repository  = "https://github.com/qompassai/ONTrack-rs"
+license     = "Apache-2.0"
+repository  = "https://github.com/qompassai/ontrack"
 description = "TDS Telecom field route optimizer — Rust implementation"
 
 [workspace.dependencies]

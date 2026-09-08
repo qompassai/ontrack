@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace   = "com.qompassai.ontrack"
+    namespace   = "ai.qompass.ontrack"
     compileSdk  = 36
 
     val ndkHomeEnv: String? = System.getenv("ANDROID_NDK_HOME")
@@ -12,9 +12,9 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.qompassai.ontrack"
+        applicationId = "ai.qompass.ontrack"
         minSdk        = 26
-        targetSdk     = 35
+        targetSdk     = 36
         versionCode   = 201
         versionName   = "2.0.0"
 

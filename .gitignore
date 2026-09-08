@@ -18,6 +18,11 @@
 .bundle/cache/
 .bundle/ruby/
 buildozer_debug.log
+
+# Native libraries are built from source by scripts/build-android.sh
+# (cargo-ndk) — do not commit prebuilt binaries; required for F-Droid
+# reproducible-build compliance.
+crates/ontrack-mobile/android/app/src/main/jniLibs/*/*.so
 Cargo.lock.bak
 docs/book/book/
 .DS_Store

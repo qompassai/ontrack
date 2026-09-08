@@ -22,7 +22,7 @@ impl Location {
 
 fn http_client() -> Result<Client> {
     Client::builder()
-        .user_agent("ontrack-rs/2.0 (TDS Telecom field router)")
+        .user_agent("ontrack/2.0 (TDS Telecom field router)")
         .timeout(Duration::from_secs(10))
         .build()
         .map_err(|e| anyhow!("http client build: {e}"))

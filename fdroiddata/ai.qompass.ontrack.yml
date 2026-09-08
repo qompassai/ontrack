@@ -1,6 +1,6 @@
 # #################################################################
-# /qompassai/.GH/Qompass/ONTrack-rs/fdroiddata/ai.qompass.ontrack.yml
-# Qompass AI Ai
+# /qompassai/ontrack/fdroiddata/ai.qompass.ontrack.yml
+# Qompass AI F-Droid Metadata
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2026 Qompass AI
 #
@@ -15,31 +15,62 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # #################################################################
-# #################################################################
 AntiFeatures:
   NonFreeNet:
-    en-US: This app depends on a proprietary online service.
+    en-US: Geocoding and distance-matrix lookups can use the Nominatim/OSRM public
+      instances or an optional Google Maps API key. Fully offline haversine mode
+      is also available and does not require network access.
 
 Categories:
   - Navigation
 
-License: BSD-3-Clause
+License: Apache-2.0
 
 AuthorName: Qompass AI
-AuthorEmail: contact@qompass.ai   # replace with your real contact email
+AuthorEmail: matt@aflabs.io
 
-WebSite: https://github.com/qompassai/ontrack-rs
-SourceCode: https://github.com/qompassai/ontrack-rs
-IssueTracker: https://github.com/qompassai/ontrack-rs/issues
-Changelog: https://github.com/qompassai/ontrack-rs/releases
+WebSite: https://github.com/qompassai/ontrack
+SourceCode: https://github.com/qompassai/ontrack
+IssueTracker: https://github.com/qompassai/ontrack/issues
+Changelog: https://github.com/qompassai/ontrack/releases
 
 AutoName: ONTrack
 Description: |-
-  ONTrack is a [short description in your own words]:
-  - What it does
-  - Who it’s for
-  - Key features, in bullet points, similar to the WiGLE example but describing ONTrack.
-  - No links to wigle.net; instead link to any ONTrack docs or site you have.
+  ONTrack plans efficient multi-stop driving routes for field technicians and
+  delivery/service crews.
+
+  - Import stop addresses from CSV or Excel
+  - Geocode addresses via Nominatim (OpenStreetMap) or Google, or compute
+    straight-line distances offline with no network access
+  - Solve the route order with a nearest-neighbor + 2-opt optimizer
+  - Export the optimized route to Google Maps, Apple/Field Maps, Waze, Street
+    View links, or CSV
+  - Optional voice-to-text stop entry (on-device Whisper model)
+  - Native Rust app on both desktop (egui) and Android (NativeActivity + Slint)
 
 RepoType: git
-Repo: https://github.com/qompassai/ontrack-rs.git
+Repo: https://github.com/qompassai/ontrack.git
+
+Builds:
+  - versionName: "2.0.0"
+    versionCode: 201
+    commit: v2.0.0
+    subdir: crates/ontrack-mobile/android
+    sudo:
+      - apt-get update
+      - apt-get install -y curl build-essential
+      - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+    init:
+      - source "$HOME/.cargo/env"
+      - rustup target add aarch64-linux-android armv7-linux-androideabi
+      - cargo install cargo-ndk
+    build:
+      - source "$HOME/.cargo/env"
+      - cd "$REPO_ROOT" && ./scripts/build-android.sh apk
+    ndk: ANDROID_NDK_HOME
+    output: app/build/outputs/apk/release/app-release-unsigned.apk
+
+AutoUpdateMode: None
+UpdateCheckMode: Tags
+CurrentVersion: "2.0.0"
+CurrentVersionCode: 201

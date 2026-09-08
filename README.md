@@ -1,192 +1,137 @@
-# ontrack-rs — TDS Telecom Field Route Optimizer (Rust)
+# ONTrack — TDS Telecom Field Route Optimizer (Rust)
 
-Rust implementation of [OnTrack](../ontrack/README.md) — same features, faster binary, no Python runtime required.
+Pure-Rust route optimizer for field technicians and service/delivery crews.
+Import a list of stops, get back an efficient driving order, and open it in
+your maps app of choice — no cloud backend, no Python runtime, no OR-Tools
+dependency.
+
+Ships as two native apps sharing one core library:
+
+- **Desktop** — a three-panel [egui](https://github.com/emilk/egui) GUI for Linux, Windows, and macOS.
+- **Android** — a `NativeActivity` app with a [Slint](https://slint.dev) UI, distributed via Google Play and F-Droid.
 
 ---
 
 ## Crates
 
-| Crate | Binary | Description |
+| Crate | Type | Description |
 |---|---|---|
-| `ontrack-core` | library | Geocoding, distance matrix, TSP solver, exporter — shared logic |
-| `ontrack-cli`  | `ontrack` | Full-featured CLI with progress bars and coloured output |
-| `ontrack-gui`  | `ontrack-gui` | egui desktop GUI — Windows, Linux, macOS |
+| [`ontrack-core`](crates/ontrack-core) | library | Address parsing (CSV/XLSX), geocoding (Nominatim/Google), distance matrix (haversine/OSRM/Google), nearest-neighbor + 2-opt TSP solver, export URL builders, optional on-device Whisper voice input |
+| [`ontrack-desktop`](crates/ontrack-desktop) | binary (`ontrack`) | egui desktop GUI — Linux, Windows, macOS |
+| [`ontrack-mobile`](crates/ontrack-mobile) | cdylib + Android app | `NativeActivity` + Slint UI, built with `cargo-ndk` and packaged with Gradle |
 
 ---
 
-## Quick Start
+## Quick Start (desktop)
 
 ```bash
-cd ontrack-rs
+git clone https://github.com/qompassai/ontrack.git
+cd ontrack
 
-# Build everything
-cargo build --release
+# Build and run the desktop GUI
+cargo build --release -p ontrack-desktop
+./target/release/ontrack
 
-# Run CLI
-./target/release/ontrack route stops.csv --open-maps
-
-# Run GUI
-./target/release/ontrack-gui
-```
-
----
-
-## CLI Usage
-
-```
-ontrack [OPTIONS] <COMMAND>
-
-Commands:
-  route     Optimize a driving route from a list of addresses
-  geocode   Geocode one or more addresses and print their lat/lng
-  location  Show the current device location via IP geolocation
-  config    Print current configuration (.env values)
-
-Options:
-  -v, --verbose   Enable verbose logging
-  -h, --help      Print help
-  -V, --version   Print version
-```
-
-### Route command
-
-```bash
-# Load addresses from CSV, optimize, print route
-ontrack route stops.csv
-
-# Open result in Google Maps
-ontrack route stops.csv --open-maps
-
-# Open first stop in ArcGIS FieldMaps
-ontrack route stops.csv --open-fieldmaps
-
-# Use Google distance matrix (requires GOOGLE_MAPS_API_KEY)
-ontrack route stops.csv --backend google
-
-# Export to CSV
-ontrack route stops.csv --export route_output.csv
-
-# Round trip (return to start)
-ontrack route stops.csv --open-route false
-
-# Enter addresses interactively
-ontrack route --interactive
-```
-
-### Address file format
-
-CSV with an `address` column:
-```csv
-address
-123 Main St Spokane WA
-456 Elm St Coeur d'Alene ID
-789 Oak Ave Post Falls ID
-```
-
-Or plain text (one address per line):
-```
-123 Main St Spokane WA
-456 Elm St Coeur d'Alene ID
-# lines starting with # are comments
+# Run the core library's tests
+cargo test -p ontrack-core
 ```
 
 ---
 
 ## Configuration
 
-Copy `.env.example` (in `../ontrack/`) to `ontrack-rs/.env`:
+Copy `.env.example` to `.env` in the repo root:
 
 ```bash
-cp ../ontrack/.env.example .env
+cp .env.example .env
 ```
 
 ```env
-GOOGLE_MAPS_API_KEY=""   # optional — enables Street View + Google routing
+GOOGLE_MAPS_API_KEY=""    # optional — enables Google geocoding/distance matrix + Street View
 OSRM_BASE_URL="http://router.project-osrm.org"
-ARCGIS_ITEM_ID=""        # optional — your ArcGIS Online web map ID
+ARCGIS_ITEM_ID=""         # optional — your ArcGIS Online web map ID, for FieldMaps deep links
+ONTRACK_WHISPER_MODEL="base"
 ```
 
-**No API key required.** Without a key, the app uses:
+**No API key required.** Without one, the app uses:
 - Nominatim (OpenStreetMap) for geocoding
-- OSRM public router for distances
-- OSM tiles for map previews
-- Plain Google Maps URL scheme for navigation
+- The public OSRM router for real driving distances, or offline haversine distance
+- Plain Google Maps / Waze / Apple Maps URL schemes for turn-by-turn navigation
 
 ---
 
 ## Solver
 
-The Rust solver uses **Nearest-Neighbour + 2-opt local search** — pure Rust, no C++ FFI, no OR-Tools dependency. For typical field routes (≤ 50 stops) this produces near-optimal results comparable to OR-Tools with a 30-second time limit.
+Nearest-neighbor seed + 2-opt local search — pure Rust, no C++ FFI, no OR-Tools.
+For typical field routes (≤ 50 stops) this produces near-optimal results in
+well under a second.
 
-| Backend | Algorithm | Quality | Speed |
+| Backend | Algorithm | Quality | Speed (50 stops) |
 |---|---|---|---|
-| `2opt` (default) | NN seed + 2-opt local search | Near-optimal | < 1s for 50 stops |
-| `nn` | Greedy nearest-neighbour | Good | < 10ms for 50 stops |
+| 2-opt (default) | NN seed + 2-opt local search | Near-optimal | < 1s |
+| Nearest-neighbor | Greedy NN | Good | < 10ms |
 
 ---
 
-## Build — Production Binaries
+## Android build (Play Store / F-Droid)
 
-### Linux x86_64
-```bash
-cargo build --release
-# Binaries: target/release/ontrack  target/release/ontrack-gui
-```
-
-### Windows (cross-compile from Linux)
-```bash
-rustup target add x86_64-pc-windows-gnu
-cargo build --release --target x86_64-pc-windows-gnu
-```
-
-### Windows (native)
-```powershell
-cargo build --release
-# Binaries: target\release\ontrack.exe  target\release\ontrack-gui.exe
-```
-
-### Static binary (fully self-contained, no glibc)
-```bash
-rustup target add x86_64-unknown-linux-musl
-cargo build --release --target x86_64-unknown-linux-musl
-```
-
----
-
-## Tests
+The Android app is built in two stages: `cargo-ndk` compiles the Rust core
+into `libontrack_mobile.so` for `arm64-v8a` and `armeabi-v7a`, then Gradle
+packages it into an APK/AAB. Nothing is committed as a prebuilt binary — both
+stores build from source.
 
 ```bash
-# Run all tests
-cargo test
+# One-shot build (AAB for Play Store, APK for sideloading/F-Droid, or both)
+./scripts/build-android.sh both
 
-# Run tests for core library only
-cargo test -p ontrack-core
-
-# With output
-cargo test -- --nocapture
+# Local emulator smoke test (SDK setup, AVD, install, launch, screenshot)
+./scripts/acli.sh full ontrack 4
 ```
+
+See [`scripts/`](scripts) for the full Android/emulator/signing toolchain, and
+[`fastlane/`](fastlane) + [`fdroiddata/`](fdroiddata) for the store metadata.
+
+Application ID: `ai.qompass.ontrack`
 
 ---
 
 ## Architecture
 
 ```
-ontrack-rs/
-├── Cargo.toml                  # workspace
-├── ontrack-core/
-│   ├── Cargo.toml
-│   └── src/
-│       ├── lib.rs
-│       ├── config.rs           # .env / environment loading
-│       ├── parser.rs           # CSV / plain-text address files
-│       ├── geocoder.rs         # Nominatim + Google geocoding
-│       ├── matrix.rs           # haversine + OSRM + Google distance matrix
-│       ├── solver.rs           # nearest-neighbour + 2-opt TSP
-│       └── exporter.rs         # CSV, Maps URL, FieldMaps, Street View, Waze
-├── ontrack-cli/
-│   ├── Cargo.toml
-│   └── src/main.rs             # clap CLI with indicatif progress bars
-└── ontrack-gui/
-    ├── Cargo.toml
-    └── src/main.rs             # egui three-panel desktop GUI
+ontrack/
+├── Cargo.toml                          # workspace
+├── crates/
+│   ├── ontrack-core/
+│   │   └── src/
+│   │       ├── lib.rs
+│   │       ├── config.rs               # .env / environment loading
+│   │       ├── parser.rs               # CSV / XLSX address files
+│   │       ├── geocoder.rs             # Nominatim + Google geocoding
+│   │       ├── matrix.rs               # haversine + OSRM + Google distance matrix
+│   │       ├── solver.rs               # nearest-neighbor + 2-opt TSP
+│   │       ├── exporter.rs             # CSV, Maps URL, FieldMaps, Street View, Waze
+│   │       └── voice.rs                # optional on-device Whisper voice input
+│   ├── ontrack-desktop/
+│   │   └── src/
+│   │       ├── main.rs
+│   │       ├── app.rs                  # worker-thread app state
+│   │       └── views/                  # home / results / settings panels
+│   └── ontrack-mobile/
+│       ├── src/
+│       │   ├── lib.rs                  # android_main entry point
+│       │   ├── controller.rs           # Slint UI wiring
+│       │   ├── gps.rs                  # Android LocationManager via JNI
+│       │   └── preview_main.rs         # desktop preview of the mobile UI
+│       ├── ui/app.slint
+│       └── android/                    # Gradle project (Play Store + F-Droid)
+├── scripts/                            # build, sign, emulate, screenshot tooling
+├── fastlane/                           # Play Store release automation
+├── fdroiddata/                         # F-Droid metadata recipe
+└── playstore/                          # Play Console listing metadata
 ```
+
+---
+
+## License
+
+Apache License 2.0 — see [LICENSE.md](LICENSE.md).

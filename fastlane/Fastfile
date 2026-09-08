@@ -5,7 +5,7 @@ default_platform(:android)
 ONTRACK_AAB_DEFAULT =
   'crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab'.freeze
 ONTRACK_METADATA_ROOT = 'fastlane/metadata/android'.freeze
-ONTRACK_PACKAGE = 'ai.qompassai.ontrack'.freeze
+ONTRACK_PACKAGE = 'ai.qompass.ontrack'.freeze
 ONTRACK_SYMBOLS_DEFAULT =
   'crates/ontrack-mobile/android/app/build/outputs/native-debug-symbols/' \
   'native-debug-symbols.zip'.freeze
