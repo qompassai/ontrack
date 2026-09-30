@@ -1,0 +1,214 @@
+/* ============================================================
+   Hyprland theme — shared by the ONTrack, phlow and light-show
+   mdBooks.
+   Palette sampled from Matt's Hyprland wallpaper
+   (~/.config/hypr/hyprd/wallpaper/wp/wall0.png):
+     deep dark navy  #0a1024   electric blue #00a6f4
+     electric cyan   #00dbcd
+   Loaded via mdbook `additional-css`. CSS-only, no JS.
+   mdbook >= 0.4.40 CSS-variable API (verified on 0.5.4).
+   ============================================================ */
+
+:root {
+  --bg: #0a1024;
+  --fg: #bfe3ff;
+
+  --sidebar-bg: #0c1330;
+  --sidebar-fg: #bfe3ff;
+  --sidebar-non-existant: #54648c;
+  --sidebar-active: #00dbcd;
+  --sidebar-spacer: #1b2f55;
+  --sidebar-header-border-color: #1b2f55;
+
+  --scrollbar: #22345f;
+
+  --icons: #5f7fc0;
+  --icons-hover: #00dbcd;
+
+  --links: #00dbcd;
+
+  --inline-code-color: #8fe8ff;
+
+  --theme-popup-bg: #0c1330;
+  --theme-popup-border: #1b2f55;
+  --theme-hover: #16224a;
+
+  --quote-bg: #0c1330;
+  --quote-border: #00a6f4;
+
+  --table-border-color: #1b2f55;
+  --table-header-bg: #0c1330;
+  --table-alternate-bg: #0d1734;
+
+  --searchbar-border-color: #1b2f55;
+  --searchbar-bg: #060b18;
+  --searchbar-fg: #bfe3ff;
+  --searchbar-shadow-color: rgba(0, 166, 244, 0.35);
+  --searchresults-header-fg: #00c8f5;
+  --searchresults-border-color: #1b2f55;
+  --searchresults-li-bg: #0d1734;
+  --search-mark-bg: rgba(139, 123, 255, 0.45);
+
+  --warning-border: #ffb454;
+
+  --blockquote-note-color: #00a6f4;
+  --blockquote-tip-color: #34e0a1;
+  --blockquote-important-color: #8b7bff;
+  --blockquote-warning-color: #ffb454;
+  --blockquote-caution-color: #ff5f6b;
+
+  --color-scheme: dark;
+}
+
+/* Lock the palette: hide the theme switcher so the Hyprland theme
+   is never mixed with the stock themes underneath it. */
+#theme-toggle,
+.theme-popup {
+  display: none !important;
+}
+
+::selection {
+  background: rgba(0, 166, 244, 0.35);
+}
+
+/* ---- headings: electric blue ---- */
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+.content h5,
+.content h6 {
+  color: #00c8f5;
+}
+.content h1 {
+  border-bottom: 1px solid #1b2f55;
+  padding-bottom: 0.4em;
+  text-shadow: 0 0 18px rgba(0, 200, 245, 0.25);
+}
+.content h2 {
+  border-bottom: 1px solid #16224a;
+  padding-bottom: 0.3em;
+}
+
+/* ---- links: electric cyan, subtle glow on hover ---- */
+.content main a:not(.header) {
+  color: #00dbcd;
+  text-decoration: none;
+  border-bottom: 1px dotted rgba(0, 219, 205, 0.45);
+}
+.content main a:not(.header):hover {
+  color: #7df9ee;
+  border-bottom-style: solid;
+  text-shadow: 0 0 10px rgba(0, 219, 205, 0.55);
+}
+
+/* ---- code: inline + fenced ---- */
+.content main code {
+  background: #060b18;
+  border: 1px solid #1b2f55;
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+  color: var(--inline-code-color);
+}
+.content main pre {
+  background: #060b18;
+  border: 1px solid #1b2f55;
+  border-radius: 8px;
+  box-shadow: 0 0 24px rgba(0, 166, 244, 0.07);
+  padding: 1em 1.4em;
+}
+.content main pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+/* keep the stock hljs token colors, but on our deep-navy block bg */
+.hljs {
+  background: #060b18;
+  color: #bfe3ff;
+}
+
+/* ---- blockquotes ---- */
+.content main blockquote {
+  background: var(--quote-bg);
+  border-left: 3px solid var(--quote-border);
+  border-top: 1px solid #16224a;
+  border-right: 1px solid #16224a;
+  border-bottom: 1px solid #16224a;
+  border-radius: 0 8px 8px 0;
+  color: #9fc6e8;
+  padding: 0.8em 1.2em;
+  margin: 1.5em 0;
+}
+
+/* ---- tables ---- */
+.content main table thead th {
+  color: #00c8f5;
+  border-bottom: 2px solid #1b2f55;
+}
+.content main table td,
+.content main table th {
+  border-color: #1b2f55;
+}
+.content main table tbody tr:nth-child(2n) {
+  background: var(--table-alternate-bg);
+}
+
+/* ---- lists ---- */
+.content main ul > li::marker,
+.content main ol > li::marker {
+  color: #00a6f4;
+}
+
+/* ---- nav arrows ---- */
+.nav-chapters {
+  color: #00a6f4;
+}
+.nav-chapters:hover {
+  color: #00dbcd;
+  text-shadow: 0 0 12px rgba(0, 219, 205, 0.6);
+}
+
+/* ---- sidebar ---- */
+.sidebar .chapter li {
+  color: #bfe3ff;
+}
+.sidebar .chapter li a {
+  color: #9cc3e8;
+}
+.sidebar .chapter li a:hover {
+  color: #00dbcd;
+}
+.sidebar .chapter li a.active {
+  color: #00dbcd;
+  font-weight: 600;
+}
+.sidebar .sidebar-header {
+  color: #00c8f5;
+}
+
+/* ---- search ---- */
+#searchresults .searchresult-header {
+  color: var(--searchresults-header-fg);
+}
+#searchresults ul > li {
+  background: var(--searchresults-li-bg);
+  border: 1px solid var(--searchresults-border-color);
+  border-radius: 6px;
+}
+mark {
+  background: var(--search-mark-bg);
+  color: #eaf6ff;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+/* ---- misc chrome ---- */
+.content main hr {
+  border: none;
+  border-top: 1px solid #1b2f55;
+  margin: 2em 0;
+}
+.spinner {
+  border-top-color: #00dbcd;
+}
