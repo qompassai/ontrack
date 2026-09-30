@@ -13,15 +13,14 @@ noted below. This file tracks only what is still open.
 
 ## F-Droid
 
-- [ ] **Missing tag.** `fdroiddata/ai.qompass.ontrack.yml` pins
-      `commit: v2.0.0`, but no `v2.0.0` tag exists locally or on the remote
-      (the F-Droid checklist states it was created and pushed — it is not
-      present now). Create + push the tag, or switch the recipe to the full
-      40-char commit SHA (F-Droid requires a SHA, never a tag).
-- [ ] **fastlane metadata tree missing.** `fastlane/` holds only
-      Appfile/Fastfile — there is no `metadata/android/` listing for
-      F-Droid to render. Verified by `fdroid-publish-check`, 2026-09-29:
-      FAIL.
+- [x] **Recipe commit pinned to SHA (2026-09-29).** `fdroiddata/ai.qompass.ontrack.yml`
+      now pins `commit: 50014198c73a93bf747984759c1e6aea11f59777` (the fastlane-metadata
+      commit) — F-Droid requires a full 40-char SHA, never a tag. (Correction: the
+      `v2.0.0` tag DOES exist on the remote; the earlier note claiming it was missing
+      was a truncated `git ls-remote` listing.)
+- [x] **fastlane metadata tree added (2026-09-29).** `fastlane/metadata/android/en-US/`
+      now has title.txt, short_description.txt (no trailing dot), full_description.txt,
+      images/icon.png (512x512), images/phoneScreenshots/1.png, changelogs/201.txt.
 - [ ] Dry-run the build recipe from a clean checkout
       (F-Droid checklist §1 — never done; needs a real Linux machine with
       Rust/cargo-ndk/NDK).
