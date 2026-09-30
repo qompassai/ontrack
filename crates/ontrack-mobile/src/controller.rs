@@ -1,4 +1,3 @@
-
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
@@ -105,9 +104,7 @@ pub fn wire(ui: &AppWindow) -> Result<()> {
                 } else {
                     Some(settings.google_maps_api_key.as_str())
                 };
-                let locs = ontrack_core::geocoder::geocode_addresses(
-                    &addresses, false, key, None,
-                );
+                let locs = ontrack_core::geocoder::geocode_addresses(&addresses, false, key, None);
                 let matrix = ontrack_core::matrix::build_distance_matrix(
                     &locs,
                     backend,
@@ -116,7 +113,8 @@ pub fn wire(ui: &AppWindow) -> Result<()> {
                 );
                 let result = match matrix {
                     Ok(m) => {
-                        let resolved: Vec<_> = locs.iter().filter(|l| l.is_resolved()).cloned().collect();
+                        let resolved: Vec<_> =
+                            locs.iter().filter(|l| l.is_resolved()).cloned().collect();
                         ontrack_core::solver::solve_tsp(
                             &resolved,
                             &m,
@@ -134,7 +132,9 @@ pub fn wire(ui: &AppWindow) -> Result<()> {
                                 ui.set_result_summary(
                                     format!(
                                         "Total drive time: {}   ·   {}",
-                                        ontrack_core::exporter::format_duration(r.total_duration_seconds),
+                                        ontrack_core::exporter::format_duration(
+                                            r.total_duration_seconds
+                                        ),
                                         r.backend_used,
                                     )
                                     .into(),

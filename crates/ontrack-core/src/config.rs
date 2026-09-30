@@ -16,7 +16,6 @@
 // limitations under the License.
 // #################################################################
 
-
 //! Global configuration and defaults for the ONTrack application.
 //!
 //! This module defines the app name/version, organization, and

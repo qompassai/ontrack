@@ -1,4 +1,3 @@
-
 #![cfg(feature = "voice")]
 
 use anyhow::{anyhow, Context, Result};
@@ -40,7 +39,10 @@ pub fn default_model_path(size: &str) -> PathBuf {
         return PathBuf::from(p);
     }
     let cache = dirs_cache().unwrap_or_else(|| PathBuf::from("/tmp"));
-    cache.join("ontrack").join("whisper").join(format!("ggml-{size}.bin"))
+    cache
+        .join("ontrack")
+        .join("whisper")
+        .join(format!("ggml-{size}.bin"))
 }
 
 fn dirs_cache() -> Option<PathBuf> {
@@ -220,7 +222,9 @@ fn run_whisper(
         ));
     }
     let ctx = WhisperContext::new_with_params(
-        model_path.to_str().ok_or_else(|| anyhow!("non-utf8 path"))?,
+        model_path
+            .to_str()
+            .ok_or_else(|| anyhow!("non-utf8 path"))?,
         WhisperContextParameters::default(),
     )
     .map_err(|e| anyhow!("whisper context: {e}"))?;
@@ -233,10 +237,16 @@ fn run_whisper(
     params.set_print_realtime(false);
     params.set_print_timestamps(false);
 
-    let mut state = ctx.create_state().map_err(|e| anyhow!("create state: {e}"))?;
-    state.full(params, samples).map_err(|e| anyhow!("transcribe: {e}"))?;
+    let mut state = ctx
+        .create_state()
+        .map_err(|e| anyhow!("create state: {e}"))?;
+    state
+        .full(params, samples)
+        .map_err(|e| anyhow!("transcribe: {e}"))?;
 
-    let n_segments = state.full_n_segments().map_err(|e| anyhow!("n_segments: {e}"))?;
+    let n_segments = state
+        .full_n_segments()
+        .map_err(|e| anyhow!("n_segments: {e}"))?;
     let mut out = String::new();
     for i in 0..n_segments {
         let seg = state.full_get_segment_text(i).unwrap_or_default();

@@ -1,4 +1,3 @@
-
 use eframe::egui;
 use ontrack_core::matrix::Backend;
 
@@ -86,12 +85,7 @@ pub fn ui(app: &mut OnTrackApp, ui: &mut egui::Ui) {
 
     let (busy, status, progress, err) = {
         let w = app.worker.lock().unwrap();
-        (
-            w.busy,
-            w.status_line.clone(),
-            w.progress,
-            w.error.clone(),
-        )
+        (w.busy, w.status_line.clone(), w.progress, w.error.clone())
     };
 
     ui.horizontal(|ui| {

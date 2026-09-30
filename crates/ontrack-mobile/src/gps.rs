@@ -1,4 +1,3 @@
-
 #![cfg(target_os = "android")]
 
 use jni::objects::{JObject, JValue};
@@ -36,8 +35,16 @@ pub fn last_known() -> Option<Location> {
             .and_then(|v| v.l().ok());
         if let Some(loc) = loc {
             if !loc.is_null() {
-                let lat = env.call_method(&loc, "getLatitude", "()D", &[]).ok()?.d().ok()?;
-                let lng = env.call_method(&loc, "getLongitude", "()D", &[]).ok()?.d().ok()?;
+                let lat = env
+                    .call_method(&loc, "getLatitude", "()D", &[])
+                    .ok()?
+                    .d()
+                    .ok()?;
+                let lng = env
+                    .call_method(&loc, "getLongitude", "()D", &[])
+                    .ok()?
+                    .d()
+                    .ok()?;
                 return Some(Location {
                     address: "Current Location".to_string(),
                     lat: Some(lat),

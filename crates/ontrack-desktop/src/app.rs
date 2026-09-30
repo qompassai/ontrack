@@ -1,4 +1,3 @@
-
 use eframe::{egui, App, CreationContext, Frame};
 use ontrack_core::config::Settings;
 use ontrack_core::geocoder::Location;

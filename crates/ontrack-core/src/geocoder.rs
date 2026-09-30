@@ -1,4 +1,3 @@
-
 use anyhow::{anyhow, Result};
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
@@ -13,7 +12,11 @@ pub struct Location {
 
 impl Location {
     pub fn new(address: impl Into<String>) -> Self {
-        Self { address: address.into(), lat: None, lng: None }
+        Self {
+            address: address.into(),
+            lat: None,
+            lng: None,
+        }
     }
     pub fn is_resolved(&self) -> bool {
         self.lat.is_some() && self.lng.is_some()
@@ -27,7 +30,6 @@ fn http_client() -> Result<Client> {
         .build()
         .map_err(|e| anyhow!("http client build: {e}"))
 }
-
 
 #[derive(Deserialize)]
 struct NominatimHit {
@@ -51,7 +53,6 @@ pub fn geocode_address_nominatim(addr: &str) -> Result<Location> {
     }
     Ok(loc)
 }
-
 
 #[derive(Deserialize)]
 struct GoogleGeoResp {
@@ -114,7 +115,6 @@ pub fn geocode_addresses(
     }
     out
 }
-
 
 #[derive(Deserialize)]
 struct IpApiResp {

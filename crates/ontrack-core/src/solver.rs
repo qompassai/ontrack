@@ -1,4 +1,3 @@
-
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 
@@ -13,16 +12,11 @@ pub struct RouteResult {
     pub backend_used: String,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum SolverBackend {
     NearestNeighbor,
+    #[default]
     NearestNeighborTwoOpt,
-}
-
-impl Default for SolverBackend {
-    fn default() -> Self {
-        Self::NearestNeighborTwoOpt
-    }
 }
 
 #[derive(Debug, Clone)]
@@ -51,16 +45,19 @@ fn route_cost(matrix: &[Vec<f64>], order: &[usize]) -> f64 {
     debug_assert!(matrix.iter().all(|row| row.len() == n));
     debug_assert!(order.iter().all(|&i| i < n));
 
-    order
-        .windows(2)
-        .map(|w| matrix[w[0]][w[1]])
-        .sum()
+    order.windows(2).map(|w| matrix[w[0]][w[1]]).sum()
 }
 
 fn nearest_neighbor(matrix: &[Vec<f64>], start: usize) -> Vec<usize> {
     let n = matrix.len();
-    assert!(n > 0, "nearest_neighbor called with an empty distance matrix");
-    assert!(matrix.iter().all(|row| row.len() == n), "nearest_neighbor requires a square matrix");
+    assert!(
+        n > 0,
+        "nearest_neighbor called with an empty distance matrix"
+    );
+    assert!(
+        matrix.iter().all(|row| row.len() == n),
+        "nearest_neighbor requires a square matrix"
+    );
     assert!(start < n, "start index {start} out of range [0, {n})");
 
     let mut visited = vec![false; n];
@@ -94,9 +91,12 @@ fn nearest_neighbor(matrix: &[Vec<f64>], start: usize) -> Vec<usize> {
     order
 }
 
-fn two_opt(matrix: &[Vec<f64>], order: &mut Vec<usize>, max_passes: usize) {
+fn two_opt(matrix: &[Vec<f64>], order: &mut [usize], max_passes: usize) {
     let n = order.len();
-    debug_assert!(order.iter().all(|&i| i < matrix.len()), "two_opt order contains an out-of-range index");
+    debug_assert!(
+        order.iter().all(|&i| i < matrix.len()),
+        "two_opt order contains an out-of-range index"
+    );
     if n < 4 {
         return;
     }
@@ -210,7 +210,11 @@ pub fn solve_open_tsp(
 mod tests {
     use super::*;
     fn loc(addr: &str) -> Location {
-        Location { address: addr.to_string(), lat: Some(0.0), lng: Some(0.0) }
+        Location {
+            address: addr.to_string(),
+            lat: Some(0.0),
+            lng: Some(0.0),
+        }
     }
 
     #[test]
@@ -235,7 +239,10 @@ mod tests {
             vec![2.0, 1.0, 0.0, 1.0],
             vec![1.0, 2.0, 1.0, 0.0],
         ];
-        let cfg_nn = SolverConfig { backend: SolverBackend::NearestNeighbor, ..Default::default() };
+        let cfg_nn = SolverConfig {
+            backend: SolverBackend::NearestNeighbor,
+            ..Default::default()
+        };
         let cfg_opt = SolverConfig::default();
         let r_nn = solve_tsp(&locs, &matrix, cfg_nn).unwrap();
         let r_opt = solve_tsp(&locs, &matrix, cfg_opt).unwrap();

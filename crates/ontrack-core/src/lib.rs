@@ -1,4 +1,3 @@
-
 pub mod config;
 pub mod exporter;
 pub mod geocoder;
@@ -14,7 +13,7 @@ pub use exporter::{
     build_streetview_url, build_waze_url, export_csv, format_duration,
 };
 pub use geocoder::{
-    geocode_addresses, geocode_address_google, geocode_address_nominatim, get_current_location,
+    geocode_address_google, geocode_address_nominatim, geocode_addresses, get_current_location,
     Location,
 };
 pub use matrix::{build_distance_matrix, haversine, Backend};

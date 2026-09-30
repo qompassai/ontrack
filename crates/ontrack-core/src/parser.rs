@@ -1,4 +1,3 @@
-
 use std::path::Path;
 
 use anyhow::{anyhow, Context, Result};
@@ -46,8 +45,8 @@ fn parse_csv(path: &Path) -> Result<Vec<String>> {
 }
 
 fn parse_excel(path: &Path) -> Result<Vec<String>> {
-    let mut wb = open_workbook_auto(path)
-        .with_context(|| format!("opening workbook {}", path.display()))?;
+    let mut wb =
+        open_workbook_auto(path).with_context(|| format!("opening workbook {}", path.display()))?;
     let sheet_name = wb
         .sheet_names()
         .first()
