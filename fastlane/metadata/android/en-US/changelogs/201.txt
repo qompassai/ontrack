@@ -1,0 +1,1 @@
+2.0.0: Initial pure-Rust port. Workspace crates ontrack-core, ontrack-desktop, ontrack-mobile. Desktop GUI (egui), mobile GUI (Slint) via cargo-ndk + Gradle. Solver: nearest-neighbour + 2-opt (replaces OR-Tools). Optional on-device Whisper voice input. Distance backends: OSRM, Google, Haversine.

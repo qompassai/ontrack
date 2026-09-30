@@ -1,0 +1,14 @@
+ONTrack plans efficient multi-stop driving routes for field technicians and delivery/service crews.
+
+Import a list of stops, get back an efficient driving order, and open it in your maps app of choice — no cloud backend required.
+
+Key features:
+- Import stop addresses from CSV or Excel
+- Geocode addresses via Nominatim (OpenStreetMap) or Google, or compute straight-line distances offline with no network access
+- Solve the route order with a nearest-neighbor + 2-opt optimizer
+- Visualize the route on a map (OSRM/Google Maps)
+- Export the optimized route to Google Maps, Apple/Field Maps, Waze, Street View links, or CSV
+- Optional voice-to-text stop entry (on-device Whisper model)
+- Offline-friendly workflows
+
+ONTrack is free and open source (Apache-2.0). There is no ONTrack backend server: address and location data only goes to the geocoding/routing services you choose.
