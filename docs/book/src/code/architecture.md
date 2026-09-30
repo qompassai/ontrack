@@ -1,6 +1,6 @@
 # Architecture
 
-## ELI5
+## In plain terms
 
 Think of ONTrack as one brain with two faces. The **brain** (`ontrack-core`) knows how to turn addresses into an ordered route. The **faces** (`ontrack-desktop` and `ontrack-mobile`) are just different ways to show that brain to a user — one speaks egui on a computer, the other speaks Slint on a phone. Neither face does any math; both hand work to the brain on a background thread so the buttons never freeze.
 

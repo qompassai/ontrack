@@ -1,6 +1,6 @@
 # Installation
 
-## ELI5
+## In plain terms
 
 You have three doors in: build the desktop app with Rust's package manager (`cargo`), enter a ready-made Nix shell that has every dependency preinstalled, or build the Android app for your phone. None of the doors require paying for anything.
 

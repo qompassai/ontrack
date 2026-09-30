@@ -1,6 +1,6 @@
 # Controls
 
-## ELI5
+## In plain terms
 
 Both apps have the same three tabs — **Home** (your stop list), **Results** (the optimized order), **Settings** (your keys and URLs) — but the buttons differ a little between desktop and phone. This chapter lists every control that exists in the source, what it does, and what happens when you use it.
 

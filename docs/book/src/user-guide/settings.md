@@ -1,6 +1,6 @@
 # Settings
 
-## ELI5
+## In plain terms
 
 ONTrack needs to know four things: your Google key (optional), which routing server to ask (optional), your ArcGIS map ID (optional), and which Whisper voice model to use (optional). Everything has a sensible default, so the app works with zero configuration. The settings themselves live in a small Rust struct; each app loads it at startup and lets you edit the fields in the Settings tab.
 

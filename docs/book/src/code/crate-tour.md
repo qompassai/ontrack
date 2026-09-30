@@ -1,6 +1,6 @@
 # Crate Tour
 
-## ELI5
+## In plain terms
 
 This chapter walks through each crate file by file — what it does, what it exports, and which UI pieces call it. Read it with the [Architecture](architecture.md) pipeline diagram in mind.
 

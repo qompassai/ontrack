@@ -4,7 +4,7 @@ ONTrack is a **field route optimizer** built for TDS Telecom technicians and ser
 
 > Give ONTrack a list of stops, and it hands back an efficient driving order — then opens that order in the maps app of your choice.
 
-## The ELI5 version
+## In plain terms
 
 Imagine you start your workday with 20 customer addresses scribbled on a clipboard. Driving them in the order they were assigned wastes gas and time. ONTrack is the friend who looks at your whole list, figures out the shortest sensible loop through all of them, and then opens turn-by-turn directions on your phone. You stay in control — it plans, you drive.
 

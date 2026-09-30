@@ -1,6 +1,6 @@
 # Everyday Use
 
-## ELI5
+## In plain terms
 
 Your day with ONTrack has four beats: **add your stops**, **pick how distances are measured**, **press the big button**, and **send the finished route to your maps app**. This chapter walks each beat the way the UI actually works.
 
