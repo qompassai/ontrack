@@ -54,14 +54,20 @@ noted below. This file tracks only what is still open.
 
 ## Google Play
 
-- [ ] Phone screenshots: only `screenshots/ontrack-home.png` exists; Play
-      needs at least 2, recommends 4–8, of the actual running app.
-      Tablet screenshots: none.
+- [x] Phone screenshots: 2 captured of the actual running app on the
+      x86_64 emulator (2026-09-29): `images/phoneScreenshots/1.png` (Home,
+      empty) and `2.png` (address entry). Replaced the previous placeholder
+      `1.png` (corrupt). Play minimum (2) met; 4-8 recommended. Tablet
+      screenshots: none.
 - [ ] Build + smoke test: `cargo test --workspace` passes on primo (13 passed,
-      0 failed, 2026-09-29); unsigned `.apk` builds (see above). Still open:
-      signed `.aab` (needs Matt's keystore), full `scripts/test.sh` device step
-      (`acli.sh` needs a running emulator/device), and manual end-to-end exercise
-      on a real device.
+      0 failed, 2026-09-29); unsigned `.apk` builds (see above). Emulator
+      smoke (2026-09-29): x86_64 build launches and runs on the API-36
+      emulator (Berberis ARM-to-x86 translator caused the earlier ARM
+      `jni-0.22.4` panic, not an app bug). UI issues found: (1) adding a stop
+      renders a giant gray rectangle where the row trailing widget should
+      be; (2) Home/Results/Settings tabs ignore adb taps. Still open:
+      signed `.aab` (needs Matt's keystore), full `scripts/test.sh` device step,
+      and manual end-to-end exercise on a real device.
 - [ ] ★ Upload keystore + key passwords: MISSING — Matt must create
       (outside the repo; loss means a new listing).
 - [ ] ★ Invite the service account (`pass` `google/ontrack-fastlane`,
