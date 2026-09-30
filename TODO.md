@@ -36,17 +36,19 @@ noted below. This file tracks only what is still open.
 - [x] **fastlane metadata tree added (2026-09-29).** `fastlane/metadata/android/en-US/`
       now has title.txt, short_description.txt (no trailing dot), full_description.txt,
       images/icon.png (512x512), images/phoneScreenshots/1.png, changelogs/201.txt.
-- [ ] Build recipe dry-run against the re-pinned SHA (2026-09-30, on primo from
-      a clean worktree of the pinned commit): `bash scripts/build-android.sh apk`
-      with `ANDROID_NDK_HOME` pinned to NDK r28 (28.0.12674087, matching the
-      recipe). The 2026-09-29 dry run was on a later tree, not the pinned SHA.
-      Fixes since: build-android.sh now exports ANDROID_NDK (skia-bindings
-      0.90.0 requires it; fdroidserver sets it on the farm only when `ndk:` is a
-      valid version). KNOWN ISSUES for the F-Droid submission: (1) skia-bindings
-      0.90.0 prebuilt binaries 404 for armv7-linux-androideabi, forcing a full
-      Skia source build (slow but works); (2) that source build FAILS on NDK r30
-      ("Unversioned target triples are not supported") — hence the r28 pin.
-      F-Droid's farm will hit both; expect reviewer questions.
+- [x] Build recipe dry-run against the re-pinned SHA (2026-09-30, on primo).
+      Clean worktree of 4d181c1: ran scripts/build-android.sh apk with
+      ANDROID_NDK_HOME pinned to NDK r28 (28.0.12674087, matching the recipe)
+      -> DRYRUN_EXIT=0, app-release-unsigned.apk (24,898,552 bytes) at exactly
+      the recipe output path, both ABIs inside (arm64-v8a 14.3 MB,
+      armeabi-v7a 9.9 MB). The armv7 full Skia source build succeeded once
+      ANDROID_NDK was exported (the 20e91fa fix). Re-ran at the final commit
+      d4e8f1c (warm cargo cache): DRYRUN2_EXIT=0, byte-identical APK size.
+      Recipe gates: fdroid readmeta OK, rewritemeta zero-diff, lint clean
+      (only canonical trailing-space warnings), fdroid-publish-check 5/5
+      PASS (READY). checkupdates Tags-mode replicated manually (fdroidserver
+      git wrapper cannot clone from this network): latest tags resolve to
+      versionName 2.0.0 / versionCode 201, matching CurrentVersion.
 - [ ] Submit the fdroiddata MR (fork, copy recipe to
       `metadata/ai.qompass.ontrack.yml`, lint, open MR, answer reviewers).
 
