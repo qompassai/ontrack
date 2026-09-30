@@ -22,6 +22,17 @@ noted below. This file tracks only what is still open.
       invalid). (Correction: the `v2.0.0` tag DOES exist on the remote; the
       earlier note claiming it was missing was a truncated `git ls-remote`
       listing.)
+      2026-09-30 recipe fixes (verified against installed fdroidserver 2.4.5
+      source): (a) dropped the subdir field — fdroidserver runs build steps
+      with cwd=root_dir=subdir, and the old cd-REPO_ROOT step referenced an
+      env var fdroidserver never defines (fatal under bash -u); the recipe now
+      has no subdir and all paths are repo-root-relative; (b) removed the
+      recipe Description field — the fastlane tree exists, so the field
+      would override it (fdroid-publish Gate 3); (c) recipe is now
+      fdroid rewritemeta-canonical (zero diff) and fdroid lint-clean
+      (only the canonical trailing-space warnings remain).
+      Categories [Navigation] and NonFreeNet verified valid against
+      fdroiddata master config/categories.yml and config/antiFeatures.yml.
 - [x] **fastlane metadata tree added (2026-09-29).** `fastlane/metadata/android/en-US/`
       now has title.txt, short_description.txt (no trailing dot), full_description.txt,
       images/icon.png (512x512), images/phoneScreenshots/1.png, changelogs/201.txt.

@@ -1,76 +1,44 @@
-# #################################################################
-# /qompassai/ontrack/fdroiddata/ai.qompass.ontrack.yml
-# Qompass AI F-Droid Metadata
-# SPDX-License-Identifier: Apache-2.0
-# Copyright (c) 2026 Qompass AI
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at:
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# #################################################################
 AntiFeatures:
   NonFreeNet:
-    en-US: Geocoding and distance-matrix lookups can use the Nominatim/OSRM public
-      instances or an optional Google Maps API key. Fully offline haversine mode
-      is also available and does not require network access.
-
+    en-US: Geocoding and distance-matrix lookups can use the Nominatim/OSRM 
+      public instances or an optional Google Maps API key. Fully offline 
+      haversine mode is also available and does not require network access.
 Categories:
   - Navigation
-
 License: Apache-2.0
-
 AuthorName: Qompass AI
 AuthorEmail: matt@aflabs.io
-
 WebSite: https://github.com/qompassai/ontrack
 SourceCode: https://github.com/qompassai/ontrack
 IssueTracker: https://github.com/qompassai/ontrack/issues
 Changelog: https://github.com/qompassai/ontrack/releases
 
 AutoName: ONTrack
-Description: |-
-  ONTrack plans efficient multi-stop driving routes for field technicians and
-  delivery/service crews.
-
-  - Import stop addresses from CSV or Excel
-  - Geocode addresses via Nominatim (OpenStreetMap) or Google, or compute
-    straight-line distances offline with no network access
-  - Solve the route order with a nearest-neighbor + 2-opt optimizer
-  - Export the optimized route to Google Maps, Apple/Field Maps, Waze, Street
-    View links, or CSV
-  - Optional voice-to-text stop entry (on-device Whisper model)
-  - Native Rust app on both desktop (egui) and Android (NativeActivity + Slint)
 
 RepoType: git
 Repo: https://github.com/qompassai/ontrack.git
 
 Builds:
-  - versionName: "2.0.0"
+  - versionName: 2.0.0
     versionCode: 201
     commit: 20e91fa0fb4061459644254306c97e99c31aa1ce
-    subdir: crates/ontrack-mobile/android
     sudo:
       - apt-get update
       - apt-get install -y curl build-essential
-      - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+      - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y 
+        --default-toolchain stable
     init:
       - source "$HOME/.cargo/env"
       - rustup target add aarch64-linux-android armv7-linux-androideabi
       - cargo install cargo-ndk
+    output: 
+      crates/ontrack-mobile/android/app/build/outputs/apk/release/app-release-unsigned.apk
     build:
       - source "$HOME/.cargo/env"
-      - cd "$REPO_ROOT" && ./scripts/build-android.sh apk
+      - ./scripts/build-android.sh apk
     ndk: 28.0.12674087
-    output: app/build/outputs/apk/release/app-release-unsigned.apk
 
 AutoUpdateMode: None
 UpdateCheckMode: Tags
-CurrentVersion: "2.0.0"
+CurrentVersion: 2.0.0
 CurrentVersionCode: 201

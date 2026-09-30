@@ -51,8 +51,8 @@ submitting:
       at tag `v2.0.0` and run only the commands listed in the `Builds:` block of
       `fdroiddata/ai.qompass.ontrack.yml`, in order, with no other setup.
 - [ ] Confirm the final output file exists at exactly
-      `app/build/outputs/apk/release/app-release-unsigned.apk` relative to `subdir:`
-      (`crates/ontrack-mobile/android`) — F-Droid's tooling checks this path literally.
+      `crates/ontrack-mobile/android/app/build/outputs/apk/release/app-release-unsigned.apk` relative to the repo root
+      (the recipe has no subdir: field; paths are repo-root-relative)
 - [ ] If the NDK isn't already on the build machine, F-Droid's `ndk:` field
       (official version scheme, e.g. `28.0.12674087` — a bare env-var name is
       invalid) tells its infra which NDK to provision automatically — you don't
