@@ -1,0 +1,12 @@
+# Pinned Rust toolchain for the ontrack Nix flake (fenix fromToolchainFile).
+# nightly-2026-09-25 (rustc 1.100.0-nightly) -- verified 2026-09-30 to build the
+# full workspace on primo, including the Slint mobile crate that nixpkgs rustc
+# 1.95.0 cannot compile (E0463 on slint-macros).
+#
+# This is SEPARATE from the repo-root `rust-toolchain` file, which names an
+# unpinned nightly for rustup users outside nix. Do not merge them: the flake
+# reads this file, rustup reads the other.
+[toolchain]
+channel = "nightly-2026-09-25"
+profile = "minimal"
+components = ["cargo", "clippy", "rust-src", "rustc", "rustfmt"]

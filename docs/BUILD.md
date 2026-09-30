@@ -68,3 +68,20 @@ cargo deny check        # licenses/advisories/bans per deny.toml
 
 Zero clippy warnings. `cargo deny check` must pass before any commit that
 adds or updates dependencies.
+
+## Deterministic builds: Nix flake
+
+`flake.nix` (+ `flake.lock`) pins the native toolchain and exposes it as
+apps — see [docs/FLAKE.md](FLAKE.md):
+
+```
+nix develop            # pinned Rust toolchain + bacon + lldb + deny/audit
+nix run .#gates         # build/clippy/fmt/test + safety + debugger smoke
+nix run .#publish-check # store-metadata readiness (dry run)
+nix run .#debug-smoke   # standalone lldb-dap breakpoint smoke test
+nix run .#release -- v2.0.1 [--dry-run]   # GitHub release end to end
+```
+
+Android APK/AAB builds stay primo-local (cargo-ndk + Android SDK are not in
+nixpkgs). Release signing and store submissions are human-gated and excluded
+from the flake apps by design.
