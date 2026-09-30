@@ -1,9 +1,16 @@
-# Agent skills for ontrack
+# Agent configuration for ontrack
 
-This directory holds vendored agent skills for working on the ontrack repo —
-finishing the Android app and publishing it to Google Play and F-Droid. They
-are copies of Matt's canonical skills, vendored here so any agent (Claude Code
-or opencode) working in this checkout gets the same rules without extra setup.
+Agent skills for working on the ontrack repo live in two places:
 
-Skills: `ontrack-publish` (Play + F-Droid publication: fastlane metadata,
-fdroiddata recipe, Android build/test gates, operator-only boundary).
+- `.claude/skills/` — read by Claude Code (which reads only its own
+  skills directory).
+- `.agents/skills/` — the cross-tool path, read by OpenCode, Codex,
+  Cursor, GitHub Copilot, Gemini CLI, and others.
+
+OpenCode also reads `.claude/skills/` directly, so the old
+`.opencode/skills/` duplicates were removed as redundant; this
+`.opencode/` directory is kept for OpenCode-specific configuration.
+
+Skills: `ontrack-publish` (Play + F-Droid publication: fastlane
+metadata, fdroiddata recipe, Android build/test gates, operator-only
+boundary).
