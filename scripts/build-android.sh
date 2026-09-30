@@ -56,6 +56,11 @@ if [ -z "${ANDROID_NDK_HOME:-}" ]; then
 fi
 export ANDROID_NDK_ROOT="$ANDROID_NDK_HOME"
 export NDK_HOME="$ANDROID_NDK_HOME"
+# skia-bindings (build_support/platform/android.rs) requires ANDROID_NDK;
+# fdroidserver sets it when the recipe ndk: field is valid, but local/dev
+# builds must export it too.
+export ANDROID_NDK="$ANDROID_NDK_HOME"
+
 
 if [ -d /usr/lib/jvm/java-17-openjdk ]; then
     export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
