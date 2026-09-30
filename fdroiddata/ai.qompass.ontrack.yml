@@ -54,7 +54,7 @@ Repo: https://github.com/qompassai/ontrack.git
 Builds:
   - versionName: "2.0.0"
     versionCode: 201
-    commit: v2.0.0
+    commit: 50014198c73a93bf747984759c1e6aea11f59777
     subdir: crates/ontrack-mobile/android
     sudo:
       - apt-get update
