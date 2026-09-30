@@ -13,23 +13,28 @@ noted below. This file tracks only what is still open.
 
 ## F-Droid
 
-- [x] **Recipe commit pinned to SHA (2026-09-29).** `fdroiddata/ai.qompass.ontrack.yml`
-      now pins `commit: 50014198c73a93bf747984759c1e6aea11f59777` (the fastlane-metadata
-      commit) — F-Droid requires a full 40-char SHA, never a tag. (Correction: the
-      `v2.0.0` tag DOES exist on the remote; the earlier note claiming it was missing
-      was a truncated `git ls-remote` listing.)
+- [x] **Recipe commit pinned to SHA (2026-09-30).** `fdroiddata/ai.qompass.ontrack.yml`
+      pins the full 40-char SHA of the tree containing the Android build fixes
+      (F-Droid requires a SHA, never a tag). The earlier pin (5001419..., the
+      fastlane-metadata commit) predated the Gradle 9.4.1 + llvm-strip fixes, so
+      the farm would have checked out a tree that cannot build. `ndk:` is now the
+      official scheme `28.0.12674087` (the bare `ANDROID_NDK_HOME` value was
+      invalid). (Correction: the `v2.0.0` tag DOES exist on the remote; the
+      earlier note claiming it was missing was a truncated `git ls-remote`
+      listing.)
 - [x] **fastlane metadata tree added (2026-09-29).** `fastlane/metadata/android/en-US/`
       now has title.txt, short_description.txt (no trailing dot), full_description.txt,
       images/icon.png (512x512), images/phoneScreenshots/1.png, changelogs/201.txt.
-- [x] Build recipe dry-run (2026-09-29, on primo from a clean clone).
-      `bash scripts/build-android.sh apk` produced
-      `crates/ontrack-mobile/android/app/build/outputs/apk/release/app-release-unsigned.apk`
-      (24.9 MB) — exactly the path the recipe declares. Fixes committed:
-      llvm-strip symlink discovery in build-android.sh, Gradle wrapper 8.7 -> 9.4.1.
-      KNOWN ISSUES for the F-Droid submission: (1) skia-bindings 0.90.0 prebuilt
-      binaries 404 for armv7-linux-androideabi, forcing a full Skia source build;
-      (2) that source build needs ANDROID_NDK set and FAILS on NDK r30
-      ("Unversioned target triples are not supported") — built here with NDK r28.
+- [ ] Build recipe dry-run against the re-pinned SHA (2026-09-30, on primo from
+      a clean worktree of the pinned commit): `bash scripts/build-android.sh apk`
+      with `ANDROID_NDK_HOME` pinned to NDK r28 (28.0.12674087, matching the
+      recipe). The 2026-09-29 dry run was on a later tree, not the pinned SHA.
+      Fixes since: build-android.sh now exports ANDROID_NDK (skia-bindings
+      0.90.0 requires it; fdroidserver sets it on the farm only when `ndk:` is a
+      valid version). KNOWN ISSUES for the F-Droid submission: (1) skia-bindings
+      0.90.0 prebuilt binaries 404 for armv7-linux-androideabi, forcing a full
+      Skia source build (slow but works); (2) that source build FAILS on NDK r30
+      ("Unversioned target triples are not supported") — hence the r28 pin.
       F-Droid's farm will hit both; expect reviewer questions.
 - [ ] Submit the fdroiddata MR (fork, copy recipe to
       `metadata/ai.qompass.ontrack.yml`, lint, open MR, answer reviewers).

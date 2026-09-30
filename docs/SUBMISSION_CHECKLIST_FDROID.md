@@ -27,9 +27,10 @@ Metadata file: `fdroiddata/ai.qompass.ontrack.yml` (to be submitted into F-Droid
   - `AntiFeatures: NonFreeNet` declared honestly — the app can talk to Nominatim/OSRM
     public servers or an optional Google Maps key, so it is **not** offline-only by
     default (haversine-only mode is offline, but isn't the default).
-- [x] `Builds:` recipe now references `commit: v2.0.0`, and that tag exists and is
-      pushed (previously it pointed at a tag that didn't exist yet — F-Droid's build
-      bot would have failed immediately on first ingestion).
+- [x] `Builds:` recipe pins `commit:` to the full 40-char SHA of the tree that
+      contains every build fix (F-Droid requires a SHA, never a tag — tags move).
+      Tag `v2.0.0` exists and is pushed, and `UpdateCheckMode: Tags` uses it for
+      future version detection.
 - [x] `Categories: [Navigation]` set.
 - [x] Root of the repo no longer has stray, unrelated `jadx`-tool Gradle scaffolding
       (`settings.gradle.kts`, `gradle.properties`, root `gradlew`) that could confuse
@@ -52,10 +53,13 @@ submitting:
 - [ ] Confirm the final output file exists at exactly
       `app/build/outputs/apk/release/app-release-unsigned.apk` relative to `subdir:`
       (`crates/ontrack-mobile/android`) — F-Droid's tooling checks this path literally.
-- [ ] If the NDK isn't already on the build machine, F-Droid's `ndk: ANDROID_NDK_HOME`
-      field tells its infra which NDK to provision automatically — you don't need to
-      install it yourself on F-Droid's build servers, only on your local dry-run
-      machine.
+- [ ] If the NDK isn't already on the build machine, F-Droid's `ndk:` field
+      (official version scheme, e.g. `28.0.12674087` — a bare env-var name is
+      invalid) tells its infra which NDK to provision automatically — you don't
+      need to install it yourself on F-Droid's build servers, only on your local
+      dry-run machine. `scripts/build-android.sh` also exports `ANDROID_NDK`
+      (required by skia-bindings); fdroidserver sets it on the farm when `ndk:`
+      is valid.
 
 ### 2. `fdroiddata` submission (F-Droid's own repo, not yours)
 F-Droid apps are added by opening a merge request against F-Droid's own

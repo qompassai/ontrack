@@ -54,7 +54,7 @@ Repo: https://github.com/qompassai/ontrack.git
 Builds:
   - versionName: "2.0.0"
     versionCode: 201
-    commit: 50014198c73a93bf747984759c1e6aea11f59777
+    commit: 20e91fa0fb4061459644254306c97e99c31aa1ce
     subdir: crates/ontrack-mobile/android
     sudo:
       - apt-get update
@@ -67,7 +67,7 @@ Builds:
     build:
       - source "$HOME/.cargo/env"
       - cd "$REPO_ROOT" && ./scripts/build-android.sh apk
-    ndk: ANDROID_NDK_HOME
+    ndk: 28.0.12674087
     output: app/build/outputs/apk/release/app-release-unsigned.apk
 
 AutoUpdateMode: None
