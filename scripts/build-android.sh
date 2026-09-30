@@ -122,8 +122,10 @@ SYMBOLS_ZIP="$ANDROID_DIR/app/build/outputs/native-debug-symbols/native-debug-sy
 rm -rf "$SYMBOLS_DIR"
 mkdir -p "$SYMBOLS_DIR" "$(dirname "$SYMBOLS_ZIP")"
 
+# NOTE: accept symlinks too - NDK r28 ships llvm-strip as a symlink
+# to llvm-objcopy, which a bare -type f misses.
 NDK_STRIP=$(find "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt" \
-    -maxdepth 3 -name 'llvm-strip' -type f 2> /dev/null | head -n1 || true)
+    -maxdepth 3 -name 'llvm-strip' \( -type f -o -type l \) 2> /dev/null | head -n1 || true)
 [ -x "$NDK_STRIP" ] || {
     echo "✗ llvm-strip not found under $ANDROID_NDK_HOME"
     exit 1
