@@ -4,7 +4,7 @@
 // -----------------------------------------------------
 // Slint UI for the Android/desktop-preview build.
 
-import { Button, LineEdit, ListView, VerticalBox, HorizontalBox, ComboBox, GroupBox, TabWidget, ScrollView, ProgressIndicator, StandardListView } from "std-widgets.slint";
+import { Button, LineEdit, VerticalBox, HorizontalBox, ComboBox, GroupBox, ProgressIndicator } from "std-widgets.slint";
 
 export struct StopItem {
     label: string,
@@ -32,6 +32,9 @@ export component AppWindow inherits Window {
 
     in-out property <int> backend-index: 0;     // 0=OSRM, 1=Google, 2=Haversine
 
+    // Selected tab (custom tab bar below; see note).
+    in-out property <int> current-tab: 0;       // 0=Home, 1=Results, 2=Settings
+
     // ── Callbacks dispatched to Rust ────────────────────────────────────
     callback add-stop();
     callback remove-stop(int);
@@ -43,104 +46,119 @@ export component AppWindow inherits Window {
     callback stop-voice();
     callback save-settings();
 
-    TabWidget {
-        Tab {
-            title: "Home";
-            VerticalBox {
-                padding: 12px;
-                spacing: 8px;
-
-                HorizontalBox {
-                    LineEdit {
-                        placeholder-text: "Add address…";
-                        text <=> new-stop-text;
-                        accepted => { root.add-stop(); }
-                    }
-                    Button { text: "Add"; clicked => { root.add-stop(); } }
-                }
-                HorizontalBox {
-                    Button { text: "📍 Current"; clicked => { root.use-current-location(); } }
-                    Button { text: "🎤 Voice"; clicked => { root.start-voice(); } }
-                }
-
-                GroupBox {
-                    title: "Stops";
-                    ScrollView {
-                        height: 320px;
-                        VerticalLayout {
-                            for stop[idx] in stops: HorizontalBox {
-                                Text { text: stop.label; width: 28px; }
-                                Text { text: stop.address; }
-                                Button {
-                                    text: "✕";
-                                    clicked => { root.remove-stop(idx); }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                HorizontalBox {
-                    Text { text: "Backend:"; vertical-alignment: center; }
-                    ComboBox {
-                        model: ["OSRM (free)", "Google", "Haversine"];
-                        current-index <=> backend-index;
-                    }
-                }
-
-                Button {
-                    text: "🚀  Optimize Route";
-                    enabled: !busy && stops.length > 0;
-                    clicked => { root.optimize-route(); }
-                }
-                if busy: ProgressIndicator { indeterminate: true; }
-                Text { text: status-text; }
-            }
+    VerticalLayout {
+        // ── Custom tab bar ──────────────────────────────────────────
+        // NOTE: the std TabWidget is intentionally NOT used here. Its tab
+        // headers are wrapped in a Flickable which, on Slint 1.16.1, delays
+        // every press by 100ms (DelayForwarding) even when there is nothing
+        // to pan — and on Android that delayed press never reaches the tab's
+        // TouchArea, so taps on the tabs are silently dropped. Upstream fixed
+        // this in 1.18.0 (PR #13117: forward the press immediately when the
+        // Flickable cannot pan). Until we upgrade, plain Buttons (whose
+        // TouchArea gets the press immediately) are the reliable tab switch.
+        HorizontalLayout {
+            padding: 8px;
+            spacing: 4px;
+            Button { text: "Home"; clicked => { current-tab = 0; } }
+            Button { text: "Results"; clicked => { current-tab = 1; } }
+            Button { text: "Settings"; clicked => { current-tab = 2; } }
         }
 
-        Tab {
-            title: "Results";
-            VerticalBox {
-                padding: 12px;
-                spacing: 8px;
-                Text { text: result-summary; font-size: 16px; }
-                HorizontalBox {
-                    Button { text: "📋 Google Maps"; clicked => { root.open-maps(); } }
-                    Button { text: "💾 Export CSV"; clicked => { root.export-csv(); } }
+        // ── Home ────────────────────────────────────────────────────
+        if current-tab == 0 : VerticalBox {
+            padding: 12px;
+            spacing: 8px;
+
+            HorizontalBox {
+                LineEdit {
+                    placeholder-text: "Add address…";
+                    text <=> new-stop-text;
+                    accepted => { root.add-stop(); }
                 }
-                GroupBox {
-                    title: "Ordered Stops";
-                    ScrollView {
-                        height: 480px;
-                        VerticalLayout {
-                            for stop[idx] in ordered-stops: HorizontalBox {
-                                Text { text: stop.label; width: 28px; }
-                                Text { text: stop.address; }
-                            }
+                Button { text: "Add"; clicked => { root.add-stop(); } }
+            }
+            HorizontalBox {
+                Button { text: "📍 Current"; clicked => { root.use-current-location(); } }
+                Button { text: "🎤 Voice"; clicked => { root.start-voice(); } }
+            }
+
+            GroupBox {
+                title: "Stops";
+                // NOTE: no ScrollView here on purpose — ScrollView wraps its
+                // content in a Flickable with the same 100ms press-delay that
+                // breaks the tab bar (see above); the remove buttons must stay
+                // directly tappable.
+                VerticalLayout {
+                    for stop[idx] in stops: HorizontalBox {
+                        Text { text: stop.label; width: 28px; }
+                        // FIX: without horizontal-stretch the box layout
+                        // splits leftover width equally among the growable
+                        // children (Slint 1.16.1 box layout: stretch defaults
+                        // to 0, and total-stretch 0 means "share equally"),
+                        // which blew the remove Button up into a giant
+                        // rectangle.
+                        Text { text: stop.address; horizontal-stretch: 1; }
+                        Button {
+                            text: "✕";
+                            clicked => { root.remove-stop(idx); }
                         }
                     }
                 }
             }
+
+            HorizontalBox {
+                Text { text: "Backend:"; vertical-alignment: center; }
+                ComboBox {
+                    model: ["OSRM (free)", "Google", "Haversine"];
+                    current-index <=> backend-index;
+                }
+            }
+
+            Button {
+                text: "🚀  Optimize Route";
+                enabled: !busy && stops.length > 0;
+                clicked => { root.optimize-route(); }
+            }
+            if busy: ProgressIndicator { indeterminate: true; }
+            Text { text: status-text; }
         }
 
-        Tab {
-            title: "Settings";
-            VerticalBox {
-                padding: 12px;
-                spacing: 8px;
-                Text { text: "Google Maps API key"; }
-                LineEdit { text <=> google-maps-api-key; input-type: password; }
-                Text { text: "OSRM Base URL"; }
-                LineEdit { text <=> osrm-base-url; }
-                Text { text: "ArcGIS Item ID"; }
-                LineEdit { text <=> arcgis-item-id; }
-                Button { text: "💾 Save"; clicked => { root.save-settings(); } }
-                Text {
-                    text: "Keys are stored locally on the device only.";
-                    color: #c0c8d4;
-                    font-size: 12px;
-                    wrap: word-wrap;
+        // ── Results ─────────────────────────────────────────────────
+        if current-tab == 1 : VerticalBox {
+            padding: 12px;
+            spacing: 8px;
+            Text { text: result-summary; font-size: 16px; }
+            HorizontalBox {
+                Button { text: "📋 Google Maps"; clicked => { root.open-maps(); } }
+                Button { text: "💾 Export CSV"; clicked => { root.export-csv(); } }
+            }
+            GroupBox {
+                title: "Ordered Stops";
+                VerticalLayout {
+                    for stop[idx] in ordered-stops: HorizontalBox {
+                        Text { text: stop.label; width: 28px; }
+                        Text { text: stop.address; horizontal-stretch: 1; }
+                    }
                 }
+            }
+        }
+
+        // ── Settings ────────────────────────────────────────────────
+        if current-tab == 2 : VerticalBox {
+            padding: 12px;
+            spacing: 8px;
+            Text { text: "Google Maps API key"; }
+            LineEdit { text <=> google-maps-api-key; input-type: password; }
+            Text { text: "OSRM Base URL"; }
+            LineEdit { text <=> osrm-base-url; }
+            Text { text: "ArcGIS Item ID"; }
+            LineEdit { text <=> arcgis-item-id; }
+            Button { text: "💾 Save"; clicked => { root.save-settings(); } }
+            Text {
+                text: "Keys are stored locally on the device only.";
+                color: #c0c8d4;
+                font-size: 12px;
+                wrap: word-wrap;
             }
         }
     }
