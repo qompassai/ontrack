@@ -1,0 +1,124 @@
+# cargo-deny policy for the ONTrack workspace.
+#
+# Run:  cargo deny check
+# Docs: https://embarkstudios.github.io/cargo-deny/
+#
+# Platform coverage mirrors scripts/build-android.sh: desktop Linux/Windows
+# plus the two Android ABIs the APK ships (arm64-v8a, armeabi-v7a).
+
+[graph]
+targets = [
+    { triple = "x86_64-unknown-linux-gnu" },
+    { triple = "x86_64-pc-windows-gnu" },
+    { triple = "aarch64-linux-android" },
+    { triple = "armv7-linux-androideabi" },
+]
+
+[advisories]
+# vulnerability/notice advisories always fail; unmaintained is scoped to
+# workspace members only. Transitive unmaintained crates with no upgrade path
+# (paste, rustybuzz, ttf-parser) are tracked individually below as RUSTSEC
+# ignores instead of failing the gate on crates we cannot fix.
+unmaintained = "workspace"
+yanked = "deny"
+ignore = [
+    # --- quick-xml < 0.41.0 ---
+    # RUSTSEC-2026-0194: quadratic runtime when checking a start tag for
+    #   duplicate attribute names (algorithmic-complexity DoS).
+    # RUSTSEC-2026-0195: unbounded namespace-declaration allocation in NsReader
+    #   (memory-exhaustion DoS).
+    # Patched releases exist only on the 0.41 line. The two copies in this
+    # tree cannot move there today:
+    #   * 0.37.5 via calamine 0.30 -- the XLSX route-sheet parser. calamine 0.30
+    #     pins quick-xml ^0.37, so a fixed quick-xml needs a calamine major
+    #     bump (latest 0.36.1 as of 2026-09-30) with API changes. ACCEPTED RISK
+    #     until that upgrade; parser input comes from the user's own route
+    #     sheets, not anonymous uploads.
+    #   * 0.39.4 via wayland-scanner 0.31 -- a build-time proc-macro that parses
+    #     only the trusted, local Wayland protocol XML at compile time. No
+    #     runtime or untrusted-input exposure.
+    { id = "RUSTSEC-2026-0194", reason = "fix only in quick-xml >= 0.41.0; 0.37.5 pinned by calamine 0.30 (accepted risk until calamine major bump), 0.39.4 via build-time wayland-scanner on trusted local XML" },
+    { id = "RUSTSEC-2026-0195", reason = "fix only in quick-xml >= 0.41.0; 0.37.5 pinned by calamine 0.30 (accepted risk until calamine major bump), 0.39.4 via build-time wayland-scanner on trusted local XML" },
+    # paste 1.0.15 is unmaintained (RUSTSEC-2024-0436); no fixed release exists.
+    # Build-time proc-macro only -- no runtime attack surface.
+    { id = "RUSTSEC-2024-0436", reason = "paste is unmaintained with no fixed release; build-time proc-macro only, no runtime exposure" },
+    # ttf-parser 0.25.1 (RUSTSEC-2026-0192) and rustybuzz 0.20.1
+    # (RUSTSEC-2026-0206) are unmaintained with no fixed releases. Both are
+    # transitive via usvg/resvg (map/SVG icon rendering); no upgrade path until
+    # the resvg stack moves.
+    { id = "RUSTSEC-2026-0192", reason = "ttf-parser unmaintained, no fixed release; transitive via usvg/resvg, no upgrade path" },
+    { id = "RUSTSEC-2026-0206", reason = "rustybuzz unmaintained, no fixed release; transitive via usvg/resvg, no upgrade path" },
+]
+
+[licenses]
+# SPDX identifiers allowed anywhere in the tree. Verified 2026-09-30; every
+# entry is OSI-approved and FSF-free/libre per the cargo-deny SPDX database.
+# Beyond the Apache-2.0/MIT/Unicode-3.0/Zlib core:
+#   BSL-1.0             -- clipboard-win, error-code (Boost Software License)
+#   OFL-1.1             -- epaint_default_fonts (bundled font data)
+#   NCSA                -- libfuzzer-sys (LLVM-derived)
+#   MPL-2.0             -- resvg / usvg / usvg-parser / usvg-tree
+#                          (file-level copyleft; dynamic linking unaffected)
+#   CDLA-Permissive-2.0 -- webpki-roots 0.26.11 + 1.0.7 (root-certificate data)
+allow = [
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "BSL-1.0",
+    "CDLA-Permissive-2.0",
+    "ISC",
+    "MIT",
+    "MPL-2.0",
+    "NCSA",
+    "OFL-1.1",
+    "Unicode-3.0",
+    "Zlib",
+]
+# The 10 Slint crates are triple-licensed:
+#   GPL-3.0-only OR LicenseRef-Slint-Royalty-free-2.0 OR LicenseRef-Slint-Software-3.0
+# This records the project's EXISTING posture: Slint is used under the
+# royalty-free license, and GPL-3.0-only is explicitly NOT accepted here
+# (an `allow` exception replaces the allow-list for the named crate, so only
+# the royalty-free license satisfies the check).
+# NOTE for Matt: this bakes your current licensing posture into policy.
+# Confirm it still holds before the Play/F-Droid submissions.
+[[licenses.exceptions]]
+name = "i-slint-backend-android-activity"
+allow = ["LicenseRef-Slint-Royalty-free-2.0"]
+[[licenses.exceptions]]
+name = "i-slint-backend-selector"
+allow = ["LicenseRef-Slint-Royalty-free-2.0"]
+[[licenses.exceptions]]
+name = "i-slint-common"
+allow = ["LicenseRef-Slint-Royalty-free-2.0"]
+[[licenses.exceptions]]
+name = "i-slint-compiler"
+allow = ["LicenseRef-Slint-Royalty-free-2.0"]
+[[licenses.exceptions]]
+name = "i-slint-core"
+allow = ["LicenseRef-Slint-Royalty-free-2.0"]
+[[licenses.exceptions]]
+name = "i-slint-core-macros"
+allow = ["LicenseRef-Slint-Royalty-free-2.0"]
+[[licenses.exceptions]]
+name = "i-slint-renderer-skia"
+allow = ["LicenseRef-Slint-Royalty-free-2.0"]
+[[licenses.exceptions]]
+name = "slint"
+allow = ["LicenseRef-Slint-Royalty-free-2.0"]
+[[licenses.exceptions]]
+name = "slint-build"
+allow = ["LicenseRef-Slint-Royalty-free-2.0"]
+[[licenses.exceptions]]
+name = "slint-macros"
+allow = ["LicenseRef-Slint-Royalty-free-2.0"]
+# epaint_default_fonts bundles font data under the Ubuntu Font Licence 1.0.
+[[licenses.exceptions]]
+name = "epaint_default_fonts"
+allow = ["LicenseRef-UFL-1.0"]
+
+[bans]
+# "deny" on wildcards fails the two workspace path dependencies on
+# ontrack-core (crates/ontrack-desktop, crates/ontrack-mobile), which
+# legitimately pin by path. Warn keeps the signal without the false positive.
+wildcards = "warn"

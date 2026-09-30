@@ -59,15 +59,25 @@ noted below. This file tracks only what is still open.
       empty) and `2.png` (address entry). Replaced the previous placeholder
       `1.png` (corrupt). Play minimum (2) met; 4-8 recommended. Tablet
       screenshots: none.
-- [ ] Build + smoke test: `cargo test --workspace` passes on primo (13 passed,
-      0 failed, 2026-09-29); unsigned `.apk` builds (see above). Emulator
-      smoke (2026-09-29): x86_64 build launches and runs on the API-36
-      emulator (Berberis ARM-to-x86 translator caused the earlier ARM
-      `jni-0.22.4` panic, not an app bug). UI issues found: (1) adding a stop
-      renders a giant gray rectangle where the row trailing widget should
-      be; (2) Home/Results/Settings tabs ignore adb taps. Still open:
-      signed `.aab` (needs Matt's keystore), full `scripts/test.sh` device step,
-      and manual end-to-end exercise on a real device.
+- [ ] Build + smoke test: `cargo test --workspace` passes on primo (0 tests
+      collected, exit 0, 2026-09-30; the "13 passed" from 2026-09-29 no
+      longer reproduces). `cargo clippy --workspace --all-targets -- -D warnings`
+      clean (2026-09-30; fixed 4 pre-existing lints in ontrack-core),
+      `cargo fmt --check` clean, `cargo deny check` clean (see deny.toml).
+      Unsigned `.apk` builds (see above; NDK r28 must be pinned via
+      ANDROID_NDK_HOME -- the script's auto-detect picks NDK 30, which breaks
+      skia-bindings). Emulator smoke (2026-09-29): x86_64 build launches and
+      runs on the API-36 emulator (Berberis ARM-to-x86 translator caused the
+      earlier ARM `jni-0.22.4` panic, not an app bug -- re-confirmed
+      2026-09-30: the arm64 APK still SIGABRTs under Berberis with the same
+      jni-0.22.4 `find_class` panic). UI issues found 2026-09-29: (1) adding
+      a stop rendered a giant gray rectangle where the row trailing widget
+      should be; (2) Home/Results/Settings tabs ignored adb taps. Both FIXED
+      2026-09-30 in e993ba0 (Slint UI fixes); x86_64 emulator re-verification
+      of the fixes in progress. Still open: signed `.aab` (needs Matt's
+      keystore), full `scripts/test.sh` device step, and manual end-to-end
+      exercise on a real device.
+
 - [ ] ★ Upload keystore + key passwords: MISSING — Matt must create
       (outside the repo; loss means a new listing).
 - [ ] ★ Invite the service account (`pass` `google/ontrack-fastlane`,

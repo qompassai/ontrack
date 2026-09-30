@@ -1,0 +1,46 @@
+# bacon.toml — qompassai/ontrack
+# SPDX-License-Identifier: Apache-2.0
+#
+# Background checker config for `bacon`, wired to Matt's Neovim setup:
+# bacon-ls runs `bacon --headless -j bacon-ls` and reads `.bacon-locations`.
+#
+# NOTE on features: the optional `voice` feature (ontrack-core) is currently
+# broken upstream — whisper-rs 0.13.2's bindings reference fields that don't
+# exist in its bundled whisper (the errors recorded in .bacon-locations came
+# from a --all-features run). The jobs below intentionally use default
+# features only. Re-add --all-features once whisper-rs ships a fixed release.
+
+[jobs.bacon-ls]
+command = [
+    "cargo", "clippy",
+    "--workspace", "--all-targets",
+    "--message-format", "json-diagnostic-rendered-ansi",
+]
+analyzer = "cargo_json"
+need_stdout = true
+
+[exports.cargo-json-spans]
+auto = true
+exporter = "analyzer"
+line_format = """\
+{diagnostic.level}|:|{span.file_name}|:|{span.line_start}|:|{span.line_end}|:|\
+{span.column_start}|:|{span.column_end}|:|{diagnostic.message}|:|{diagnostic.rendered}|:|\
+{span.suggested_replacement}\
+"""
+path = ".bacon-locations"
+
+[jobs.check]
+command = ["cargo", "check", "--workspace", "--all-targets"]
+need_stdout = false
+
+[jobs.clippy]
+command = ["cargo", "clippy", "--workspace", "--all-targets", "--", "-D", "warnings"]
+need_stdout = false
+
+[jobs.test]
+command = ["cargo", "test", "--workspace"]
+need_stdout = false
+
+[jobs.doc]
+command = ["cargo", "doc", "--workspace", "--no-deps"]
+need_stdout = false
