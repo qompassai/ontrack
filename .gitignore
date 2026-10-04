@@ -84,3 +84,6 @@ callgrind.out.*
 massif.out.*
 *.dSYM/
 *.pdb
+
+# repomap codebase map (generated; never commit)
+.repomap.txt

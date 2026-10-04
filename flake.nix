@@ -26,9 +26,10 @@
     # else; pinned in flake.lock like all other inputs.
     fenix.url = "github:nix-community/fenix";
     fenix.inputs.nixpkgs.follows = "nixpkgs";
+    repomap.url = "github:qompassai/nix?dir=repomap";
   };
 
-  outputs = { self, nixpkgs, flake-utils, fenix }:
+  outputs = { self, nixpkgs, flake-utils, fenix, repomap }:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = nixpkgs.legacyPackages.${system};
 
@@ -116,7 +117,9 @@
     in {
       devShells.default = pkgs.mkShell {
         name = "ontrack-dev";
-        packages = baseInputs;
+        packages = baseInputs
+        # repomap: always-fresh codebase map for coding agents.
+        ++ [ repomap.packages.${system}.repomap ];
         # Android SDK/NDK and cargo-ndk are NOT in nixpkgs: APK/AAB builds
         # stay a primo-local step (ANDROID_HOME=/opt/android-sdk).
         # Documented in docs/FLAKE.md; not faked here.
@@ -128,7 +131,9 @@
           export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER="${pkgs.clang}/bin/clang"
           echo "ontrack dev shell: $(rustc --version)"
           echo "APK/AAB builds need the Android SDK/NDK + cargo-ndk (not in nixpkgs); see docs/FLAKE.md."
-        '';
+        '' + repomap.lib.refreshHook {
+          pkg = repomap.packages.${system}.repomap;
+        };
       };
 
       apps = {
