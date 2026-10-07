@@ -27,6 +27,16 @@ The Android app, recorded from the current build: adding stops on Home, the Resu
   <a href="docs/media/ontrack-preview-v2.mp4">Watch the full video preview (MP4)</a>
 </p>
 
+The desktop app, recorded from the current build: adding the same five stops on Home and optimizing the route.
+
+<p align="center">
+  <img src="docs/media/ontrack-desktop-preview.gif" alt="ONTrack desktop app walkthrough" width="720">
+</p>
+
+<p align="center">
+  <a href="docs/media/ontrack-desktop-preview.mp4">Watch the desktop preview (MP4)</a>
+</p>
+
 ---
 
 <details>
@@ -35,7 +45,7 @@ The Android app, recorded from the current build: adding stops on Home, the Resu
 Get ONTrack from the [GitHub Releases](https://github.com/qompassai/ontrack/releases) page — the latest release is [v2026-09-10](https://github.com/qompassai/ontrack/releases/tag/v2026-09-10).
 
 - **Android phone** — get the app from the [releases page](https://github.com/qompassai/ontrack/releases).
-- **Windows desktop** — get the app from the [releases page](https://github.com/qompassai/ontrack/releases).
+- **Windows desktop** — download [ontrack-windows-x86_64.zip](https://github.com/qompassai/ontrack/releases/download/v2026-09-10/ontrack-windows-x86_64.zip) from the [v2026-09-10 release](https://github.com/qompassai/ontrack/releases/tag/v2026-09-10).
 
 </details>
 
