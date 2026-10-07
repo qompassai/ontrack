@@ -78,6 +78,29 @@ ARCGIS_ITEM_ID=""         # optional — your ArcGIS Online web map ID, for Fiel
 ONTRACK_WHISPER_MODEL="base"
 ```
 
+### Getting the keys
+
+**GOOGLE_MAPS_API_KEY** — optional; only needed if you want Google for geocoding and driving distances instead of the free backends below.
+
+1. In the [Google Cloud Console](https://console.cloud.google.com/), create or select a project.
+2. Enable the **Geocoding API** and the **Distance Matrix API** for that project.
+3. Go to **APIs & Services → Credentials → Create credentials → API key**.
+4. Recommended: restrict the key to those two APIs, so it cannot be used for anything else.
+
+Full walkthrough: Google’s [Get API key](https://developers.google.com/maps/documentation/geocoding/get-api-key) guide.
+
+**ARCGIS_ITEM_ID** — not an API key. It is the ID of your own ArcGIS Online web map, used to build Field Maps deep links.
+
+1. Sign in to [ArcGIS Online](https://www.arcgis.com/home) (a free account works) and create or open your web map.
+2. Open the map’s item details page.
+3. The item ID is the `id=` value in the page URL — copy it into `.env`.
+
+See the ArcGIS Online [item details](https://doc.arcgis.com/en/arcgis-online/manage-data/configure-item-details.htm) documentation.
+
+**Free backends — no key at all.** Nominatim geocoding and the public OSRM router (`OSRM_BASE_URL`) work without an account. If you send heavy traffic, respect the [Nominatim usage policy](https://operations.osmfoundation.org/policies/nominatim/) or [self-host OSRM](https://project-osrm.org/) instead.
+
+**ONTRACK_WHISPER_MODEL** — picks the on-device Whisper model for voice input (for example `base`). No key and no account.
+
 **No API key required.** Without one, the app uses:
 - Nominatim (OpenStreetMap) for geocoding
 - The public OSRM router for real driving distances, or offline haversine distance
