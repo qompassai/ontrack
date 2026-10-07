@@ -30,19 +30,6 @@ The Android app, recorded from the current build: adding stops on Home, the Resu
 ---
 
 <details>
-<summary>Crates</summary>
-
-| Crate | Type | Description |
-|---|---|---|
-| [`ontrack-core`](crates/ontrack-core) | library | Address parsing (CSV/XLSX), geocoding (Nominatim/Google), distance matrix (haversine/OSRM/Google), nearest-neighbor + 2-opt TSP solver, export URL builders, optional on-device Whisper voice input |
-| [`ontrack-desktop`](crates/ontrack-desktop) | binary (`ontrack`) | egui desktop GUI — Linux, Windows, macOS |
-| [`ontrack-mobile`](crates/ontrack-mobile) | cdylib + Android app | `NativeActivity` + Slint UI, built with `cargo-ndk` and packaged with Gradle |
-
-</details>
-
----
-
-<details>
 <summary>Quick Start</summary>
 
 Get ONTrack from the [GitHub Releases](https://github.com/qompassai/ontrack/releases) page — the latest release is [v2026-09-10](https://github.com/qompassai/ontrack/releases/tag/v2026-09-10).
@@ -69,6 +56,69 @@ cargo build --release -p ontrack-desktop
 cargo test -p ontrack-core
 ```
 
+
+<details>
+<summary>Crates</summary>
+
+| Crate | Type | Description |
+|---|---|---|
+| [`ontrack-core`](crates/ontrack-core) | library | Address parsing (CSV/XLSX), geocoding (Nominatim/Google), distance matrix (haversine/OSRM/Google), nearest-neighbor + 2-opt TSP solver, export URL builders, optional on-device Whisper voice input |
+| [`ontrack-desktop`](crates/ontrack-desktop) | binary (`ontrack`) | egui desktop GUI — Linux, Windows, macOS |
+| [`ontrack-mobile`](crates/ontrack-mobile) | cdylib + Android app | `NativeActivity` + Slint UI, built with `cargo-ndk` and packaged with Gradle |
+
+</details>
+
+<details>
+<summary>Solver</summary>
+
+Nearest-neighbor seed + 2-opt local search — pure Rust, no C++ FFI, no OR-Tools.
+For typical field routes (≤ 50 stops) this produces near-optimal results in
+well under a second.
+
+| Backend | Algorithm | Quality | Speed (50 stops) |
+|---|---|---|---|
+| 2-opt (default) | NN seed + 2-opt local search | Near-optimal | < 1s |
+| Nearest-neighbor | Greedy NN | Good | < 10ms |
+
+</details>
+
+<details>
+<summary>Architecture</summary>
+
+```
+ontrack/
+├── Cargo.toml                          # workspace
+├── crates/
+│   ├── ontrack-core/
+│   │   └── src/
+│   │       ├── lib.rs
+│   │       ├── config.rs               # .env / environment loading
+│   │       ├── parser.rs               # CSV / XLSX address files
+│   │       ├── geocoder.rs             # Nominatim + Google geocoding
+│   │       ├── matrix.rs               # haversine + OSRM + Google distance matrix
+│   │       ├── solver.rs               # nearest-neighbor + 2-opt TSP
+│   │       ├── exporter.rs             # CSV, Maps URL, FieldMaps, Street View, Waze
+│   │       └── voice.rs                # optional on-device Whisper voice input
+│   ├── ontrack-desktop/
+│   │   └── src/
+│   │       ├── main.rs
+│   │       ├── app.rs                  # worker-thread app state
+│   │       └── views/                  # home / results / settings panels
+│   └── ontrack-mobile/
+│       ├── src/
+│       │   ├── lib.rs                  # android_main entry point
+│       │   ├── controller.rs           # Slint UI wiring
+│       │   ├── gps.rs                  # Android LocationManager via JNI
+│       │   └── preview_main.rs         # desktop preview of the mobile UI
+│       ├── ui/app.slint
+│       └── android/                    # Gradle project (Play Store + F-Droid)
+├── scripts/                            # build, sign, emulate, screenshot tooling
+├── fastlane/                           # Play Store release automation
+├── fdroiddata/                         # F-Droid metadata recipe
+└── playstore/                          # Play Console listing metadata
+```
+
+</details>
 </details>
 
 ---
@@ -122,22 +172,6 @@ See the ArcGIS Online [item details](https://doc.arcgis.com/en/arcgis-online/man
 ---
 
 <details>
-<summary>Solver</summary>
-
-Nearest-neighbor seed + 2-opt local search — pure Rust, no C++ FFI, no OR-Tools.
-For typical field routes (≤ 50 stops) this produces near-optimal results in
-well under a second.
-
-| Backend | Algorithm | Quality | Speed (50 stops) |
-|---|---|---|---|
-| 2-opt (default) | NN seed + 2-opt local search | Near-optimal | < 1s |
-| Nearest-neighbor | Greedy NN | Good | < 10ms |
-
-</details>
-
----
-
-<details>
 <summary>Android build (Play Store / F-Droid)</summary>
 
 The Android app is built in two stages: `cargo-ndk` compiles the Rust core
@@ -157,46 +191,6 @@ See [`scripts/`](scripts) for the full Android/emulator/signing toolchain, and
 [`fastlane/`](fastlane) + [`fdroiddata/`](fdroiddata) for the store metadata.
 
 Application ID: `ai.qompass.ontrack`
-
-</details>
-
----
-
-<details>
-<summary>Architecture</summary>
-
-```
-ontrack/
-├── Cargo.toml                          # workspace
-├── crates/
-│   ├── ontrack-core/
-│   │   └── src/
-│   │       ├── lib.rs
-│   │       ├── config.rs               # .env / environment loading
-│   │       ├── parser.rs               # CSV / XLSX address files
-│   │       ├── geocoder.rs             # Nominatim + Google geocoding
-│   │       ├── matrix.rs               # haversine + OSRM + Google distance matrix
-│   │       ├── solver.rs               # nearest-neighbor + 2-opt TSP
-│   │       ├── exporter.rs             # CSV, Maps URL, FieldMaps, Street View, Waze
-│   │       └── voice.rs                # optional on-device Whisper voice input
-│   ├── ontrack-desktop/
-│   │   └── src/
-│   │       ├── main.rs
-│   │       ├── app.rs                  # worker-thread app state
-│   │       └── views/                  # home / results / settings panels
-│   └── ontrack-mobile/
-│       ├── src/
-│       │   ├── lib.rs                  # android_main entry point
-│       │   ├── controller.rs           # Slint UI wiring
-│       │   ├── gps.rs                  # Android LocationManager via JNI
-│       │   └── preview_main.rs         # desktop preview of the mobile UI
-│       ├── ui/app.slint
-│       └── android/                    # Gradle project (Play Store + F-Droid)
-├── scripts/                            # build, sign, emulate, screenshot tooling
-├── fastlane/                           # Play Store release automation
-├── fdroiddata/                         # F-Droid metadata recipe
-└── playstore/                          # Play Console listing metadata
-```
 
 </details>
 
