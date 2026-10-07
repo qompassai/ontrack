@@ -1,13 +1,12 @@
 # ONTrack — Field Route Optimizer
 
 <p align="center">
-  <img src="docs/media/ontrack-hero.png" alt="ONTrack — Route Optimization for Fiber Installs" width="720">
+  <img src="docs/media/ontrack-hero.png" alt="ONTrack — A Practical Route Optimizer" width="720">
 </p>
 
-A practical route optimizer.
+Route optimizer for field technicians and service/delivery crews.
 Import a list of stops, get back an efficient driving order, and open it in
-your maps app of choice — no cloud backend, no Python runtime, no OR-Tools
-dependency.
+your maps app of choice.
 
 Ships as two native apps sharing one core library:
 
@@ -44,7 +43,19 @@ The Android app, recorded from the current build: adding stops on Home, the Resu
 ---
 
 <details>
-<summary>Quick Start (desktop)</summary>
+<summary>Quick Start</summary>
+
+Get ONTrack from the [GitHub Releases](https://github.com/qompassai/ontrack/releases) page — the latest release is [v2026-09-10](https://github.com/qompassai/ontrack/releases/tag/v2026-09-10).
+
+- **Android phone** — get the app from the [releases page](https://github.com/qompassai/ontrack/releases).
+- **Windows desktop** — get the app from the [releases page](https://github.com/qompassai/ontrack/releases).
+
+</details>
+
+---
+
+<details>
+<summary>Developer info</summary>
 
 ```bash
 git clone https://github.com/qompassai/ontrack.git
