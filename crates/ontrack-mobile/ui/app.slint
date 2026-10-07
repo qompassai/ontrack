@@ -43,6 +43,17 @@ export component AppWindow inherits Window {
     callback stop-voice();
     callback save-settings();
 
+    // Keep the whole UI (tab bar included) clear of the system bars.
+    // On Android 15+ the window is edge-to-edge, so without this inset
+    // the tab bar renders underneath the status bar and taps on the
+    // upper part of a tab are swallowed by the system. safe-area-insets
+    // is zero on desktop, so the preview is unaffected.
+    VerticalLayout {
+        padding-top: root.safe-area-insets.top;
+        padding-right: root.safe-area-insets.right;
+        padding-bottom: root.safe-area-insets.bottom;
+        padding-left: root.safe-area-insets.left;
+
     TabWidget {
         Tab {
             title: "Home";
@@ -68,11 +79,22 @@ export component AppWindow inherits Window {
                     ScrollView {
                         height: 320px;
                         VerticalLayout {
+                            alignment: start;
                             for stop[idx] in stops: HorizontalBox {
-                                Text { text: stop.label; width: 28px; }
-                                Text { text: stop.address; }
+                                // The row must stay one line tall: without
+                                // these pins the layout stretches the row to
+                                // the ScrollView height and the ✕ button —
+                                // the only stretchable child — balloons into
+                                // a giant gray slab filling the row.
+                                vertical-stretch: 0;
+                                Text { text: stop.label; width: 28px; vertical-alignment: center; }
+                                Text { text: stop.address; horizontal-stretch: 1; vertical-alignment: center; }
                                 Button {
                                     text: "✕";
+                                    width: 44px;
+                                    height: 36px;
+                                    horizontal-stretch: 0;
+                                    vertical-stretch: 0;
                                     clicked => { root.remove-stop(idx); }
                                 }
                             }
@@ -143,5 +165,6 @@ export component AppWindow inherits Window {
                 }
             }
         }
+    }
     }
 }
