@@ -77,6 +77,7 @@ export component AppWindow inherits Window {
         if current-tab == 0 : VerticalBox {
             padding: 12px;
             spacing: 8px;
+            vertical-stretch: 1;
 
             HorizontalBox {
                 LineEdit {
@@ -136,6 +137,7 @@ export component AppWindow inherits Window {
         if current-tab == 1 : VerticalBox {
             padding: 12px;
             spacing: 8px;
+            vertical-stretch: 1;
             Text { text: result-summary; font-size: 16px; }
             HorizontalBox {
                 Button { text: "📋 Google Maps"; clicked => { root.open-maps(); } }
@@ -156,6 +158,12 @@ export component AppWindow inherits Window {
         if current-tab == 2 : VerticalBox {
             padding: 12px;
             spacing: 8px;
+            vertical-stretch: 1;
+            // Pack children at their natural height: with every child at
+            // stretch 0 the layout would share the page's full height
+            // equally among them (the stop-row defect, rotated) and the
+            // fields below would balloon into slabs.
+            alignment: start;
             Text { text: "Google Maps API key"; }
             LineEdit { text <=> google-maps-api-key; input-type: password; }
             Text { text: "OSRM Base URL"; }
