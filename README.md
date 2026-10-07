@@ -20,9 +20,13 @@ Ships as two native apps sharing one core library:
 
 The Android app, recorded from the current build: adding stops on Home, the Results page, and Settings.
 
-![ONTrack Android app walkthrough](docs/media/ontrack-preview-v2.gif)
+<p align="center">
+  <img src="docs/media/ontrack-preview-v2.gif" alt="ONTrack Android app walkthrough" width="360">
+</p>
 
-[Watch the full video preview (MP4)](docs/media/ontrack-preview-v2.mp4)
+<p align="center">
+  <a href="docs/media/ontrack-preview-v2.mp4">Watch the full video preview (MP4)</a>
+</p>
 
 ---
 
