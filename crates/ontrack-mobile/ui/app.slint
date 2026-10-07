@@ -4,7 +4,7 @@
 // -----------------------------------------------------
 // Slint UI for the Android/desktop-preview build.
 
-import { Button, LineEdit, VerticalBox, HorizontalBox, ComboBox, GroupBox, ProgressIndicator } from "std-widgets.slint";
+import { Button, LineEdit, VerticalBox, HorizontalBox, ComboBox, GroupBox, ProgressIndicator, Palette } from "std-widgets.slint";
 
 export struct StopItem {
     label: string,
@@ -16,6 +16,14 @@ export component AppWindow inherits Window {
     preferred-width: 412px;
     preferred-height: 892px;
     background: #002855;
+
+    // The window background is deep navy, but the Fluent palette follows
+    // the OS color scheme: in light mode every std-widget takes its light
+    // variant (translucent-white control faces, near-black text), which
+    // reads as pale slabs on navy and leaves plain Text labels black on
+    // navy. Pin the palette's own dark scheme so all Fluent tokens —
+    // control faces, text, accent — take their dark-background values.
+    init => { Palette.color-scheme = ColorScheme.dark; }
 
     // ── Bindable state, exposed to Rust ─────────────────────────────────
     in-out property <[StopItem]> stops;
