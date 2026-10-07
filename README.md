@@ -4,7 +4,7 @@
   <img src="docs/media/ontrack-hero.png" alt="ONTrack — Route Optimization for Fiber Installs" width="720">
 </p>
 
-Route optimizer for field technicians and service/delivery crews.
+A practical route optimizer.
 Import a list of stops, get back an efficient driving order, and open it in
 your maps app of choice — no cloud backend, no Python runtime, no OR-Tools
 dependency.
