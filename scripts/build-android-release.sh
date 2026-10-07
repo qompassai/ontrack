@@ -39,6 +39,10 @@ unset CARGO_TARGET_ARMV7_LINUX_ANDROIDEABI_RUSTFLAGS
 export CARGO_ENCODED_RUSTFLAGS=""
 export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$ROOT/target}"
 
+if [ -d "$HOME/.cargo/bin" ]; then
+    export PATH="$HOME/.cargo/bin:$PATH"
+fi
+
 for cmd in cargo cargo-ndk rustup python3; do
     command -v "$cmd" > /dev/null || {
         echo "✗ $cmd not found"
@@ -63,21 +67,22 @@ find_ndk_root()
 
     if [ -n "${ANDROID_NDK_HOME:-}" ] && [ -d "$ANDROID_NDK_HOME" ]; then
         candidate="$ANDROID_NDK_HOME"
-        if find "$candidate" -type f -name llvm-strip 2> /dev/null | grep -q .; then
+        if find "$candidate" -name llvm-strip 2> /dev/null | grep -q .; then
             printf '%s\n' "$candidate"
             return 0
         fi
     fi
 
     if [ -d "$ANDROID_HOME/ndk" ]; then
-        candidate=$(find "$ANDROID_HOME/ndk" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -n1 || true)
-        if [ -n "$candidate" ] && find "$candidate" -type f -name llvm-strip 2> /dev/null | grep -q .; then
-            printf '%s\n' "$candidate"
-            return 0
-        fi
+        while IFS= read -r candidate; do
+            if find "$candidate" -name llvm-strip 2> /dev/null | grep -q .; then
+                printf '%s\n' "$candidate"
+                return 0
+            fi
+        done < <(find "$ANDROID_HOME/ndk" -mindepth 1 -maxdepth 1 -type d | sort -Vr)
     fi
 
-    if [ -d /opt/android-ndk ] && find /opt/android-ndk -type f -name llvm-strip 2> /dev/null | grep -q .; then
+    if [ -d /opt/android-ndk ] && find /opt/android-ndk -name llvm-strip 2> /dev/null | grep -q .; then
         printf '%s\n' "/opt/android-ndk"
         return 0
     fi
@@ -98,6 +103,10 @@ ANDROID_NDK_HOME="${ANDROID_NDK_HOME:-$(find_ndk_root || true)}"
 export ANDROID_NDK_HOME
 export ANDROID_NDK_ROOT="$ANDROID_NDK_HOME"
 export NDK_HOME="$ANDROID_NDK_HOME"
+# skia-bindings (build_support/platform/android.rs) requires ANDROID_NDK;
+# fdroidserver sets it when the recipe ndk: field is valid, but local/dev
+# builds must export it too.
+export ANDROID_NDK="$ANDROID_NDK_HOME"
 
 if [ -d /usr/lib/jvm/java-17-openjdk ]; then
     export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
