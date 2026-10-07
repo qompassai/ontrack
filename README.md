@@ -1,4 +1,8 @@
-# ONTrack — TDS Telecom Field Route Optimizer (Rust)
+# ONTrack — Field Route Optimizer
+
+<p align="center">
+  <img src="docs/media/ontrack-hero.png" alt="ONTrack — Route Optimization for Fiber Installs" width="720">
+</p>
 
 Pure-Rust route optimizer for field technicians and service/delivery crews.
 Import a list of stops, get back an efficient driving order, and open it in
@@ -22,7 +26,8 @@ The Android app, recorded from the current build: adding stops on Home, the Resu
 
 ---
 
-## Crates
+<details>
+<summary>Crates</summary>
 
 | Crate | Type | Description |
 |---|---|---|
@@ -30,9 +35,12 @@ The Android app, recorded from the current build: adding stops on Home, the Resu
 | [`ontrack-desktop`](crates/ontrack-desktop) | binary (`ontrack`) | egui desktop GUI — Linux, Windows, macOS |
 | [`ontrack-mobile`](crates/ontrack-mobile) | cdylib + Android app | `NativeActivity` + Slint UI, built with `cargo-ndk` and packaged with Gradle |
 
+</details>
+
 ---
 
-## Quick Start (desktop)
+<details>
+<summary>Quick Start (desktop)</summary>
 
 ```bash
 git clone https://github.com/qompassai/ontrack.git
@@ -46,9 +54,12 @@ cargo build --release -p ontrack-desktop
 cargo test -p ontrack-core
 ```
 
+</details>
+
 ---
 
-## Configuration
+<details>
+<summary>Configuration</summary>
 
 Copy `.env.example` to `.env` in the repo root:
 
@@ -68,9 +79,12 @@ ONTRACK_WHISPER_MODEL="base"
 - The public OSRM router for real driving distances, or offline haversine distance
 - Plain Google Maps / Waze / Apple Maps URL schemes for turn-by-turn navigation
 
+</details>
+
 ---
 
-## Solver
+<details>
+<summary>Solver</summary>
 
 Nearest-neighbor seed + 2-opt local search — pure Rust, no C++ FFI, no OR-Tools.
 For typical field routes (≤ 50 stops) this produces near-optimal results in
@@ -81,9 +95,12 @@ well under a second.
 | 2-opt (default) | NN seed + 2-opt local search | Near-optimal | < 1s |
 | Nearest-neighbor | Greedy NN | Good | < 10ms |
 
+</details>
+
 ---
 
-## Android build (Play Store / F-Droid)
+<details>
+<summary>Android build (Play Store / F-Droid)</summary>
 
 The Android app is built in two stages: `cargo-ndk` compiles the Rust core
 into `libontrack_mobile.so` for `arm64-v8a` and `armeabi-v7a`, then Gradle
@@ -103,9 +120,12 @@ See [`scripts/`](scripts) for the full Android/emulator/signing toolchain, and
 
 Application ID: `ai.qompass.ontrack`
 
+</details>
+
 ---
 
-## Architecture
+<details>
+<summary>Architecture</summary>
 
 ```
 ontrack/
@@ -139,6 +159,8 @@ ontrack/
 ├── fdroiddata/                         # F-Droid metadata recipe
 └── playstore/                          # Play Console listing metadata
 ```
+
+</details>
 
 ---
 
