@@ -4,7 +4,7 @@
   <img src="docs/media/ontrack-hero.png" alt="ONTrack — Route Optimization for Fiber Installs" width="720">
 </p>
 
-Pure-Rust route optimizer for field technicians and service/delivery crews.
+Route optimizer for field technicians and service/delivery crews.
 Import a list of stops, get back an efficient driving order, and open it in
 your maps app of choice — no cloud backend, no Python runtime, no OR-Tools
 dependency.
