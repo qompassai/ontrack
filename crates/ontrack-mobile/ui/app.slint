@@ -47,6 +47,15 @@ export component AppWindow inherits Window {
     callback save-settings();
 
     VerticalLayout {
+        // Keep the whole UI (tab bar included) clear of the system bars.
+        // On Android 15+ the window is edge-to-edge, so without this inset
+        // the tab bar renders underneath the status bar and taps on the
+        // upper part of a tab are swallowed by the system. safe-area-insets
+        // is zero on desktop, so the preview is unaffected.
+        padding-top: root.safe-area-insets.top;
+        padding-right: root.safe-area-insets.right;
+        padding-bottom: root.safe-area-insets.bottom;
+        padding-left: root.safe-area-insets.left;
         // ── Custom tab bar ──────────────────────────────────────────
         // NOTE: the std TabWidget is intentionally NOT used here. Its tab
         // headers are wrapped in a Flickable which, on Slint 1.16.1, delays
