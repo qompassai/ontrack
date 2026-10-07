@@ -1,0 +1,59 @@
+name: Deploy OnTrack web build to Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "crates/ontrack-core/**"
+      - "crates/ontrack-desktop/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment; don't cancel a publish mid-flight.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The repo's rust-toolchain file selects nightly and already lists
+      # the wasm32-unknown-unknown target; rustup resolves it from the
+      # checkout root.
+      - name: Ensure wasm target
+        run: rustup target add wasm32-unknown-unknown
+
+      - name: Install Trunk
+        uses: taiki-e/install-action@v2
+        with:
+          tool: trunk
+
+      - name: Build wasm bundle
+        working-directory: crates/ontrack-desktop
+        run: trunk build --release --public-url /ontrack/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: crates/ontrack-desktop/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

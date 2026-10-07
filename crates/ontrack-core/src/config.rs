@@ -39,6 +39,16 @@ pub const ORG_NAME: &str = "TDS Telecom";
 /// and travel time calculations if you don't provide your own OSRM instance.
 pub const OSRM_PUBLIC: &str = "http://router.project-osrm.org";
 
+/// The OSRM endpoint used as the default on each platform.
+///
+/// Browser builds are served over HTTPS, and browsers refuse to fetch
+/// plain-HTTP endpoints from an HTTPS page (mixed content), so the web
+/// default must use the HTTPS form of the same public router.
+#[cfg(not(target_arch = "wasm32"))]
+pub const OSRM_PUBLIC_DEFAULT: &str = OSRM_PUBLIC;
+#[cfg(target_arch = "wasm32")]
+pub const OSRM_PUBLIC_DEFAULT: &str = "https://router.project-osrm.org";
+
 /// Runtime configuration for ONTrack.
 ///
 /// This struct gathers all settings that can be controlled via
@@ -81,7 +91,7 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             google_maps_api_key: String::new(),
-            osrm_base_url: OSRM_PUBLIC.to_string(),
+            osrm_base_url: OSRM_PUBLIC_DEFAULT.to_string(),
             arcgis_item_id: String::new(),
             whisper_model: "base".to_string(),
         }
@@ -101,7 +111,8 @@ impl Settings {
 
         Self {
             google_maps_api_key: env::var("GOOGLE_MAPS_API_KEY").unwrap_or_default(),
-            osrm_base_url: env::var("OSRM_BASE_URL").unwrap_or_else(|_| OSRM_PUBLIC.to_string()),
+            osrm_base_url: env::var("OSRM_BASE_URL")
+                .unwrap_or_else(|_| OSRM_PUBLIC_DEFAULT.to_string()),
             arcgis_item_id: env::var("ARCGIS_ITEM_ID").unwrap_or_default(),
             whisper_model: env::var("ONTRACK_WHISPER_MODEL").unwrap_or_else(|_| "base".to_string()),
         }

@@ -4,6 +4,7 @@ use ontrack_core::geocoder::Location;
 use ontrack_core::matrix::Backend;
 use ontrack_core::solver::RouteResult;
 use std::sync::{Arc, Mutex};
+#[cfg(not(target_arch = "wasm32"))]
 use std::thread;
 
 use crate::views;
@@ -24,6 +25,10 @@ pub struct WorkerState {
     pub error: Option<String>,
     pub result: Option<RouteResult>,
     pub locations: Vec<Location>,
+    /// Addresses delivered by the browser file picker (wasm only): the
+    /// async dialog cannot touch `OnTrackApp` directly, so it parks its
+    /// result here and `update` drains it into the stop list.
+    pub imported: Option<Vec<String>>,
 }
 
 pub struct OnTrackApp {
@@ -65,6 +70,7 @@ impl OnTrackApp {
             w.result = None;
         }
 
+        #[cfg(not(target_arch = "wasm32"))]
         thread::spawn(move || {
             let key = if settings.google_maps_api_key.is_empty() {
                 None
@@ -130,11 +136,92 @@ impl OnTrackApp {
                 }
             }
         });
+
+        // Browser build: there are no OS threads in wasm, so the same
+        // pipeline runs as a local future on the event loop, using the
+        // async (fetch-backed) core functions instead.
+        #[cfg(target_arch = "wasm32")]
+        wasm_bindgen_futures::spawn_local(async move {
+            let key = if settings.google_maps_api_key.is_empty() {
+                None
+            } else {
+                Some(settings.google_maps_api_key.as_str())
+            };
+            let mut progress_cb = {
+                let worker = worker.clone();
+                move |done: usize, total: usize| {
+                    let mut w = worker.lock().unwrap();
+                    w.progress = (done, total);
+                }
+            };
+            let locs = ontrack_core::geocoder::geocode_addresses_async(
+                &addresses,
+                use_google,
+                key,
+                Some(&mut progress_cb),
+            )
+            .await;
+
+            {
+                let mut w = worker.lock().unwrap();
+                w.status_line = "Building distance matrix…".to_string();
+            }
+
+            let matrix_res = ontrack_core::matrix::build_distance_matrix_async(
+                &locs,
+                backend,
+                Some(&settings.osrm_base_url),
+                Some(&settings.google_maps_api_key),
+            )
+            .await;
+
+            let matrix = match matrix_res {
+                Ok(m) => m,
+                Err(e) => {
+                    let mut w = worker.lock().unwrap();
+                    w.busy = false;
+                    w.error = Some(format!("matrix: {e}"));
+                    return;
+                }
+            };
+
+            {
+                let mut w = worker.lock().unwrap();
+                w.status_line = "Solving route…".to_string();
+            }
+
+            let resolved: Vec<Location> =
+                locs.iter().filter(|l| l.is_resolved()).cloned().collect();
+            let cfg = ontrack_core::solver::SolverConfig::default();
+            match ontrack_core::solver::solve_tsp(&resolved, &matrix, cfg) {
+                Ok(r) => {
+                    let mut w = worker.lock().unwrap();
+                    w.busy = false;
+                    w.result = Some(r);
+                    w.locations = resolved;
+                    w.status_line = "Done".to_string();
+                }
+                Err(e) => {
+                    let mut w = worker.lock().unwrap();
+                    w.busy = false;
+                    w.error = Some(format!("solve: {e}"));
+                }
+            }
+        });
     }
 }
 
 impl App for OnTrackApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
+        // Drain addresses delivered by the async browser file picker.
+        let imported = {
+            let mut w = self.worker.lock().unwrap();
+            w.imported.take()
+        };
+        if let Some(mut addrs) = imported {
+            self.addresses.append(&mut addrs);
+        }
+
         egui::TopBottomPanel::top("nav").show(ctx, |ui| {
             ui.horizontal(|ui| {
                 ui.heading("OnTrack");

@@ -1,0 +1,10 @@
+# Trunk configuration for the OnTrack browser build (see docs/WEB.md).
+[build]
+target = "index.html"
+dist = "dist"
+
+[watch]
+ignore = ["dist"]
+
+[serve]
+port = 8080

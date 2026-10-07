@@ -1,4 +1,6 @@
+#[cfg(not(target_arch = "wasm32"))]
 use std::fs;
+#[cfg(not(target_arch = "wasm32"))]
 use std::path::PathBuf;
 
 use eframe::egui;
@@ -41,18 +43,27 @@ pub fn ui(app: &mut OnTrackApp, ui: &mut egui::Ui) {
         });
 
     ui.add_space(8.0);
+    #[cfg(not(target_arch = "wasm32"))]
     if ui.button("💾  Save to .env").clicked() {
         if let Err(e) = save_env(&app.settings) {
             let mut w = app.worker.lock().unwrap();
             w.error = Some(format!("save: {e}"));
         }
     }
+    // Browser build: there is no filesystem to persist to — settings
+    // typed here apply for this tab session only.
+    #[cfg(target_arch = "wasm32")]
+    ui.label("Settings apply to this browser session only (the web build has no .env file).");
     ui.add_space(8.0);
+    #[cfg(not(target_arch = "wasm32"))]
     ui.label(
         "Note: keys are stored only in your local .env file — never transmitted to TDS servers.",
     );
+    #[cfg(target_arch = "wasm32")]
+    ui.label("Note: keys stay in this tab's memory — never transmitted to TDS servers.");
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn save_env(s: &ontrack_core::config::Settings) -> anyhow::Result<()> {
     let path = PathBuf::from(".env");
     let contents = format!(

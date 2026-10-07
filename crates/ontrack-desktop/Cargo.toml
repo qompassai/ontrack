@@ -17,14 +17,28 @@ voice   = ["ontrack-core/voice"]
 [dependencies]
 ontrack-core = { path = "../ontrack-core" }
 
-eframe       = { workspace = true }
 egui         = { workspace = true }
 egui_extras  = { workspace = true }
 rfd          = { workspace = true }
 
 anyhow       = { workspace = true }
 log          = { workspace = true }
-env_logger   = { workspace = true }
 serde        = { workspace = true }
 serde_json   = { workspace = true }
+
+# Native entry point: windowed eframe runner. The workspace eframe enables
+# the wayland/x11 backends, which exist only on native targets.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+eframe       = { workspace = true }
+env_logger   = { workspace = true }
 dotenvy      = { workspace = true }
+
+# Browser entry point (see src/main.rs + docs/WEB.md): eframe's WebRunner
+# on a <canvas>, built with Trunk. Feature set follows eframe 0.30's own
+# web template; the wayland/x11 backends above are native-only.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+eframe       = { version = "0.30", default-features = false, features = ["default_fonts", "glow", "persistence"] }
+console_error_panic_hook = "0.1"
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+web-sys      = { version = "0.3", features = ["Document", "Element", "HtmlCanvasElement", "Node", "Window"] }

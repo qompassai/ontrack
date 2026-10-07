@@ -26,6 +26,7 @@ pub fn ui(app: &mut OnTrackApp, ui: &mut egui::Ui) {
             ui.output_mut(|o| o.copied_text = url);
         }
         if ui.button("💾  Export CSV").clicked() {
+            #[cfg(not(target_arch = "wasm32"))]
             if let Some(path) = rfd::FileDialog::new()
                 .add_filter("CSV", &["csv"])
                 .set_file_name("ontrack_route.csv")
@@ -36,6 +37,27 @@ pub fn ui(app: &mut OnTrackApp, ui: &mut egui::Ui) {
                     let mut w = app.worker.lock().unwrap();
                     w.error = Some(format!("export: {e}"));
                 }
+            }
+
+            // Browser build: async save dialog; the CSV is generated in
+            // memory and written through the browser's file handle.
+            #[cfg(target_arch = "wasm32")]
+            {
+                let addrs = result.ordered_addresses.clone();
+                let worker = app.worker.clone();
+                wasm_bindgen_futures::spawn_local(async move {
+                    let dialog = rfd::AsyncFileDialog::new()
+                        .add_filter("CSV", &["csv"])
+                        .set_file_name("ontrack_route.csv")
+                        .save_file();
+                    if let Some(handle) = dialog.await {
+                        let contents = ontrack_core::exporter::route_csv_string(&addrs);
+                        if let Err(e) = handle.write(contents.as_bytes()).await {
+                            let mut w = worker.lock().unwrap();
+                            w.error = Some(format!("export: {e}"));
+                        }
+                    }
+                });
             }
         }
     });

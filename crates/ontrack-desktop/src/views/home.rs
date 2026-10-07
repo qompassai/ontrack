@@ -23,6 +23,7 @@ pub fn ui(app: &mut OnTrackApp, ui: &mut egui::Ui) {
         }
 
         if ui.button("Import CSV/Excel").clicked() {
+            #[cfg(not(target_arch = "wasm32"))]
             if let Some(path) = rfd::FileDialog::new()
                 .add_filter("CSV / Excel", &["csv", "xlsx", "xls", "xlsm", "ods"])
                 .pick_file()
@@ -35,8 +36,38 @@ pub fn ui(app: &mut OnTrackApp, ui: &mut egui::Ui) {
                     }
                 }
             }
+
+            // Browser build: the picker is the web file input under the
+            // hood and is asynchronous — the parsed addresses are parked
+            // in `worker.imported` and drained by `App::update`.
+            #[cfg(target_arch = "wasm32")]
+            {
+                let worker = app.worker.clone();
+                wasm_bindgen_futures::spawn_local(async move {
+                    let dialog = rfd::AsyncFileDialog::new()
+                        .add_filter("CSV / Excel", &["csv", "xlsx", "xls", "xlsm", "ods"])
+                        .pick_file();
+                    if let Some(handle) = dialog.await {
+                        let name = handle.file_name();
+                        let bytes = handle.read().await;
+                        match ontrack_core::parser::parse_addresses_from_bytes(&name, &bytes) {
+                            Ok(addrs) => {
+                                let mut w = worker.lock().unwrap();
+                                w.imported = Some(addrs);
+                            }
+                            Err(e) => {
+                                let mut w = worker.lock().unwrap();
+                                w.error = Some(format!("parse: {e}"));
+                            }
+                        }
+                    }
+                });
+            }
         }
 
+        // Native only: the IP-geolocation endpoint is plain HTTP, which
+        // browsers block as mixed content from the HTTPS web build.
+        #[cfg(not(target_arch = "wasm32"))]
         if ui.button("Use Current Location").clicked() {
             if let Some(loc) = ontrack_core::geocoder::get_current_location() {
                 app.addresses.insert(0, loc.address);

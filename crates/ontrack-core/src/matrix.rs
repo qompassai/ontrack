@@ -1,9 +1,14 @@
 use anyhow::{anyhow, Result};
+#[cfg(not(target_arch = "wasm32"))]
 use reqwest::blocking::Client;
 use serde::Deserialize;
+#[cfg(not(target_arch = "wasm32"))]
 use std::time::Duration;
 
+#[cfg(not(target_arch = "wasm32"))]
 use crate::config::OSRM_PUBLIC;
+#[cfg(target_arch = "wasm32")]
+use crate::config::OSRM_PUBLIC_DEFAULT;
 use crate::geocoder::Location;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -46,10 +51,21 @@ pub fn haversine(lat1: f64, lng1: f64, lat2: f64, lng2: f64) -> f64 {
     dist
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 fn http_client() -> Result<Client> {
     Client::builder()
         .user_agent("ontrack/2.0")
         .timeout(Duration::from_secs(30))
+        .build()
+        .map_err(|e| anyhow!("http client build: {e}"))
+}
+
+#[cfg(target_arch = "wasm32")]
+fn http_client_async() -> Result<reqwest::Client> {
+    // No `.timeout(..)`: reqwest's fetch backend on wasm has no
+    // per-request timeout API (the builder method does not exist there).
+    reqwest::Client::builder()
+        .user_agent("ontrack/2.0")
         .build()
         .map_err(|e| anyhow!("http client build: {e}"))
 }
@@ -63,19 +79,17 @@ struct OsrmResp {
     durations: Option<Vec<Vec<f64>>>,
 }
 
-fn osrm_matrix(locations: &[&Location], base_url: &str) -> Result<Vec<Vec<f64>>> {
+/// Builds the OSRM `/table` request URL shared by both client variants.
+fn osrm_table_url(locations: &[&Location], base_url: &str) -> String {
     let coords: Vec<String> = locations
         .iter()
         .map(|l| format!("{},{}", l.lng.unwrap_or(0.0), l.lat.unwrap_or(0.0)))
         .collect();
-    let url = format!("{}/table/v1/driving/{}", base_url, coords.join(";"));
-    let resp: OsrmResp = http_client()?
-        .get(&url)
-        .query(&[("annotations", "duration,distance")])
-        .send()?
-        .error_for_status()?
-        .json()?;
+    format!("{}/table/v1/driving/{}", base_url, coords.join(";"))
+}
 
+/// Validates an OSRM table response and extracts the duration matrix.
+fn osrm_durations(resp: OsrmResp, n: usize) -> Result<Vec<Vec<f64>>> {
     if resp.code != "Ok" {
         return Err(anyhow!(
             "OSRM error: {}",
@@ -89,17 +103,38 @@ fn osrm_matrix(locations: &[&Location], base_url: &str) -> Result<Vec<Vec<f64>>>
     // Postcondition: OSRM must return a square matrix matching the number of
     // coordinates we requested — a malformed/truncated response here would
     // silently corrupt the solver's input otherwise.
-    if durations.len() != locations.len()
-        || durations.iter().any(|row| row.len() != locations.len())
-    {
+    if durations.len() != n || durations.iter().any(|row| row.len() != n) {
         return Err(anyhow!(
             "OSRM matrix shape mismatch: expected {n}x{n}, got {r}x{c}",
-            n = locations.len(),
             r = durations.len(),
             c = durations.first().map_or(0, |row| row.len())
         ));
     }
     Ok(durations)
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn osrm_matrix(locations: &[&Location], base_url: &str) -> Result<Vec<Vec<f64>>> {
+    let resp: OsrmResp = http_client()?
+        .get(osrm_table_url(locations, base_url))
+        .query(&[("annotations", "duration,distance")])
+        .send()?
+        .error_for_status()?
+        .json()?;
+    osrm_durations(resp, locations.len())
+}
+
+#[cfg(target_arch = "wasm32")]
+async fn osrm_matrix_async(locations: &[&Location], base_url: &str) -> Result<Vec<Vec<f64>>> {
+    let resp: OsrmResp = http_client_async()?
+        .get(osrm_table_url(locations, base_url))
+        .query(&[("annotations", "duration,distance")])
+        .send()
+        .await?
+        .error_for_status()?
+        .json()
+        .await?;
+    osrm_durations(resp, locations.len())
 }
 
 #[derive(Deserialize)]
@@ -122,6 +157,49 @@ struct GoogleDur {
     value: f64,
 }
 
+/// Formats a coordinate range as Google's `lat,lng|lat,lng` list syntax.
+fn google_coords(locations: &[&Location]) -> String {
+    locations
+        .iter()
+        .map(|l| format!("{},{}", l.lat.unwrap_or(0.0), l.lng.unwrap_or(0.0)))
+        .collect::<Vec<_>>()
+        .join("|")
+}
+
+/// Merges one Google Distance Matrix batch (origins from row `i`,
+/// destinations from column `j`) into the full matrix.
+fn apply_google_batch(
+    matrix: &mut [Vec<f64>],
+    resp: &GoogleResp,
+    locations: &[&Location],
+    i: usize,
+    j: usize,
+) -> Result<()> {
+    if resp.status != "OK" {
+        return Err(anyhow!("Google API error: {}", resp.status));
+    }
+
+    for (ri, row) in resp.rows.iter().enumerate() {
+        for (ci, elem) in row.elements.iter().enumerate() {
+            let val = if elem.status == "OK" {
+                elem.duration.as_ref().map(|d| d.value).unwrap_or(0.0)
+            } else {
+                let a = locations[i + ri];
+                let b = locations[j + ci];
+                haversine(
+                    a.lat.unwrap_or(0.0),
+                    a.lng.unwrap_or(0.0),
+                    b.lat.unwrap_or(0.0),
+                    b.lng.unwrap_or(0.0),
+                )
+            };
+            matrix[i + ri][j + ci] = val;
+        }
+    }
+    Ok(())
+}
+
+#[cfg(not(target_arch = "wasm32"))]
 fn google_matrix(locations: &[&Location], api_key: &str) -> Result<Vec<Vec<f64>>> {
     let n = locations.len();
     let mut matrix = vec![vec![0.0_f64; n]; n];
@@ -129,19 +207,11 @@ fn google_matrix(locations: &[&Location], api_key: &str) -> Result<Vec<Vec<f64>>
 
     for i in (0..n).step_by(batch) {
         let i_end = (i + batch).min(n);
-        let origins = locations[i..i_end]
-            .iter()
-            .map(|l| format!("{},{}", l.lat.unwrap_or(0.0), l.lng.unwrap_or(0.0)))
-            .collect::<Vec<_>>()
-            .join("|");
+        let origins = google_coords(&locations[i..i_end]);
 
         for j in (0..n).step_by(batch) {
             let j_end = (j + batch).min(n);
-            let dests = locations[j..j_end]
-                .iter()
-                .map(|l| format!("{},{}", l.lat.unwrap_or(0.0), l.lng.unwrap_or(0.0)))
-                .collect::<Vec<_>>()
-                .join("|");
+            let dests = google_coords(&locations[j..j_end]);
 
             let resp: GoogleResp = http_client()?
                 .get("https://maps.googleapis.com/maps/api/distancematrix/json")
@@ -154,27 +224,40 @@ fn google_matrix(locations: &[&Location], api_key: &str) -> Result<Vec<Vec<f64>>
                 .error_for_status()?
                 .json()?;
 
-            if resp.status != "OK" {
-                return Err(anyhow!("Google API error: {}", resp.status));
-            }
+            apply_google_batch(&mut matrix, &resp, locations, i, j)?;
+        }
+    }
+    Ok(matrix)
+}
 
-            for (ri, row) in resp.rows.iter().enumerate() {
-                for (ci, elem) in row.elements.iter().enumerate() {
-                    let val = if elem.status == "OK" {
-                        elem.duration.as_ref().map(|d| d.value).unwrap_or(0.0)
-                    } else {
-                        let a = locations[i + ri];
-                        let b = locations[j + ci];
-                        haversine(
-                            a.lat.unwrap_or(0.0),
-                            a.lng.unwrap_or(0.0),
-                            b.lat.unwrap_or(0.0),
-                            b.lng.unwrap_or(0.0),
-                        )
-                    };
-                    matrix[i + ri][j + ci] = val;
-                }
-            }
+#[cfg(target_arch = "wasm32")]
+async fn google_matrix_async(locations: &[&Location], api_key: &str) -> Result<Vec<Vec<f64>>> {
+    let n = locations.len();
+    let mut matrix = vec![vec![0.0_f64; n]; n];
+    let batch = 10usize;
+
+    for i in (0..n).step_by(batch) {
+        let i_end = (i + batch).min(n);
+        let origins = google_coords(&locations[i..i_end]);
+
+        for j in (0..n).step_by(batch) {
+            let j_end = (j + batch).min(n);
+            let dests = google_coords(&locations[j..j_end]);
+
+            let resp: GoogleResp = http_client_async()?
+                .get("https://maps.googleapis.com/maps/api/distancematrix/json")
+                .query(&[
+                    ("origins", &origins),
+                    ("destinations", &dests),
+                    ("key", &api_key.to_string()),
+                ])
+                .send()
+                .await?
+                .error_for_status()?
+                .json()
+                .await?;
+
+            apply_google_batch(&mut matrix, &resp, locations, i, j)?;
         }
     }
     Ok(matrix)
@@ -206,32 +289,27 @@ fn haversine_matrix(locations: &[&Location]) -> Vec<Vec<f64>> {
     m
 }
 
-pub fn build_distance_matrix(
-    locations: &[Location],
-    backend: Backend,
-    osrm_url: Option<&str>,
-    google_api_key: Option<&str>,
-) -> Result<Vec<Vec<f64>>> {
+/// The subset of `locations` that geocoding resolved to coordinates.
+fn resolved_locations(locations: &[Location]) -> Result<Vec<&Location>> {
     let resolved: Vec<&Location> = locations.iter().filter(|l| l.is_resolved()).collect();
     if resolved.is_empty() {
         return Err(anyhow!("no geocoded locations available to build matrix"));
     }
-    let n = resolved.len();
+    Ok(resolved)
+}
 
-    let matrix = match backend {
-        Backend::Osrm => osrm_matrix(&resolved, osrm_url.unwrap_or(OSRM_PUBLIC)),
-        Backend::Google => {
-            let key = google_api_key
-                .filter(|k| !k.is_empty())
-                .ok_or_else(|| anyhow!("Google backend requires an API key"))?;
-            google_matrix(&resolved, key)
-        }
-        Backend::Haversine => Ok(haversine_matrix(&resolved)),
-    }?;
+/// Extracts a usable Google API key or explains why the backend can't run.
+fn google_key(google_api_key: Option<&str>) -> Result<&str> {
+    google_api_key
+        .filter(|k| !k.is_empty())
+        .ok_or_else(|| anyhow!("Google backend requires an API key"))
+}
 
-    // Postcondition: whichever backend produced the matrix, callers (the
-    // solver) rely absolutely on it being an n x n square — enforce that
-    // contract here once rather than trusting every backend individually.
+/// Enforces the square-matrix postcondition every backend must satisfy:
+/// whichever backend produced the matrix, callers (the solver) rely
+/// absolutely on it being an n x n square — enforce that contract here
+/// once rather than trusting every backend individually.
+fn check_square(matrix: Vec<Vec<f64>>, n: usize) -> Vec<Vec<f64>> {
     assert!(
         matrix.len() == n && matrix.iter().all(|row| row.len() == n),
         "distance matrix backend returned a non-square {}x{} matrix for {} locations",
@@ -239,5 +317,47 @@ pub fn build_distance_matrix(
         matrix.first().map_or(0, |row| row.len()),
         n
     );
-    Ok(matrix)
+    matrix
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub fn build_distance_matrix(
+    locations: &[Location],
+    backend: Backend,
+    osrm_url: Option<&str>,
+    google_api_key: Option<&str>,
+) -> Result<Vec<Vec<f64>>> {
+    let resolved = resolved_locations(locations)?;
+    let n = resolved.len();
+
+    let matrix = match backend {
+        Backend::Osrm => osrm_matrix(&resolved, osrm_url.unwrap_or(OSRM_PUBLIC)),
+        Backend::Google => google_matrix(&resolved, google_key(google_api_key)?),
+        Backend::Haversine => Ok(haversine_matrix(&resolved)),
+    }?;
+
+    Ok(check_square(matrix, n))
+}
+
+/// Async counterpart of [`build_distance_matrix`] for the browser build,
+/// where reqwest runs on the fetch API. Same backends, same postcondition.
+#[cfg(target_arch = "wasm32")]
+pub async fn build_distance_matrix_async(
+    locations: &[Location],
+    backend: Backend,
+    osrm_url: Option<&str>,
+    google_api_key: Option<&str>,
+) -> Result<Vec<Vec<f64>>> {
+    let resolved = resolved_locations(locations)?;
+    let n = resolved.len();
+
+    let matrix = match backend {
+        Backend::Osrm => {
+            osrm_matrix_async(&resolved, osrm_url.unwrap_or(OSRM_PUBLIC_DEFAULT)).await
+        }
+        Backend::Google => google_matrix_async(&resolved, google_key(google_api_key)?).await,
+        Backend::Haversine => Ok(haversine_matrix(&resolved)),
+    }?;
+
+    Ok(check_square(matrix, n))
 }

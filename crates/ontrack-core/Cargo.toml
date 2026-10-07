@@ -15,12 +15,10 @@ default = []
 voice   = ["dep:cpal", "dep:hound", "dep:whisper-rs"]
 
 [dependencies]
-reqwest      = { workspace = true }
 serde        = { workspace = true }
 serde_json   = { workspace = true }
 csv          = { workspace = true }
 calamine     = { workspace = true }
-tokio        = { workspace = true }
 anyhow       = { workspace = true }
 thiserror    = { workspace = true }
 url          = { workspace = true }
@@ -31,3 +29,16 @@ dotenvy      = { workspace = true }
 cpal         = { workspace = true, optional = true }
 hound        = { workspace = true, optional = true }
 whisper-rs   = { workspace = true, optional = true }
+
+# Native targets use the workspace reqwest (rustls + blocking client)
+# and the full workspace tokio.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+reqwest      = { workspace = true }
+tokio        = { workspace = true }
+
+# In the browser, reqwest's async client is backed by the fetch API and
+# needs no TLS stack or blocking runtime of its own. Tokio is limited to
+# the features tokio itself supports on wasm.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+reqwest      = { version = "0.12", default-features = false, features = ["json"] }
+tokio        = { version = "1", default-features = false, features = ["io-util", "macros", "rt", "sync", "time"] }

@@ -4,13 +4,22 @@ use std::io::Write;
 use std::path::Path;
 use urlencoding::encode;
 
-pub fn export_csv<P: AsRef<Path>>(ordered_addresses: &[String], output_path: P) -> Result<()> {
-    let mut f = File::create(output_path)?;
-    writeln!(f, "stop,address")?;
+/// Renders the route CSV exactly as [`export_csv`] writes it.
+///
+/// The browser build has no filesystem to write to; its save dialog
+/// needs the CSV contents in memory instead.
+pub fn route_csv_string(ordered_addresses: &[String]) -> String {
+    let mut out = String::from("stop,address\n");
     for (i, addr) in ordered_addresses.iter().enumerate() {
         let escaped = addr.replace('"', "\"\"");
-        writeln!(f, "{},\"{}\"", i + 1, escaped)?;
+        out.push_str(&format!("{},\"{}\"\n", i + 1, escaped));
     }
+    out
+}
+
+pub fn export_csv<P: AsRef<Path>>(ordered_addresses: &[String], output_path: P) -> Result<()> {
+    let mut f = File::create(output_path)?;
+    write!(f, "{}", route_csv_string(ordered_addresses))?;
     Ok(())
 }
 

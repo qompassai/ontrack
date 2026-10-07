@@ -1,29 +1,49 @@
+use std::io::{Cursor, Read, Seek};
 use std::path::Path;
 
 use anyhow::{anyhow, Context, Result};
-use calamine::{open_workbook_auto, Data, Reader};
+use calamine::{open_workbook_auto, open_workbook_auto_from_rs, Data, Reader, Sheets};
 
 pub fn parse_addresses<P: AsRef<Path>>(path: P) -> Result<Vec<String>> {
     let path = path.as_ref();
-    let ext = path
-        .extension()
-        .and_then(|e| e.to_str())
-        .map(|s| s.to_ascii_lowercase())
-        .unwrap_or_default();
-
-    match ext.as_str() {
+    match extension_of(path).as_str() {
         "csv" => parse_csv(path),
         "xlsx" | "xls" | "xlsm" | "xlsb" | "ods" => parse_excel(path),
         other => Err(anyhow!("unsupported file extension: .{other}")),
     }
 }
 
+/// Parses addresses from in-memory file contents.
+///
+/// This is the browser build's counterpart to [`parse_addresses`]: a web
+/// page cannot hand the app a filesystem path, so the file picker passes
+/// the picked file's name (for its extension) and bytes instead.
+pub fn parse_addresses_from_bytes(file_name: &str, bytes: &[u8]) -> Result<Vec<String>> {
+    match extension_of(Path::new(file_name)).as_str() {
+        "csv" => parse_csv_reader(Cursor::new(bytes.to_vec())),
+        "xlsx" | "xls" | "xlsm" | "xlsb" | "ods" => parse_excel_bytes(bytes),
+        other => Err(anyhow!("unsupported file extension: .{other}")),
+    }
+}
+
+fn extension_of(path: &Path) -> String {
+    path.extension()
+        .and_then(|e| e.to_str())
+        .map(|s| s.to_ascii_lowercase())
+        .unwrap_or_default()
+}
+
 fn parse_csv(path: &Path) -> Result<Vec<String>> {
+    let file =
+        std::fs::File::open(path).with_context(|| format!("opening CSV {}", path.display()))?;
+    parse_csv_reader(file)
+}
+
+fn parse_csv_reader<R: Read>(reader: R) -> Result<Vec<String>> {
     let mut rdr = csv::ReaderBuilder::new()
         .has_headers(true)
         .flexible(true)
-        .from_path(path)
-        .with_context(|| format!("opening CSV {}", path.display()))?;
+        .from_reader(reader);
 
     let headers = rdr.headers()?.clone();
     let idx = headers
@@ -47,6 +67,16 @@ fn parse_csv(path: &Path) -> Result<Vec<String>> {
 fn parse_excel(path: &Path) -> Result<Vec<String>> {
     let mut wb =
         open_workbook_auto(path).with_context(|| format!("opening workbook {}", path.display()))?;
+    extract_excel_addresses(&mut wb)
+}
+
+fn parse_excel_bytes(bytes: &[u8]) -> Result<Vec<String>> {
+    let mut wb = open_workbook_auto_from_rs(Cursor::new(bytes.to_vec()))
+        .map_err(|e| anyhow!("opening workbook from uploaded bytes: {e}"))?;
+    extract_excel_addresses(&mut wb)
+}
+
+fn extract_excel_addresses<RS: Read + Seek>(wb: &mut Sheets<RS>) -> Result<Vec<String>> {
     let sheet_name = wb
         .sheet_names()
         .first()
