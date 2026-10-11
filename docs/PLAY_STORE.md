@@ -17,9 +17,9 @@ yay -S android-sdk android-sdk-platform-tools android-sdk-build-tools \
 # Accept all licenses
 yes | /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
 
-# Install platform 35 + matching build-tools + NDK 27
+# Install platform 36 + matching build-tools + NDK 28
 /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager \
-    "platforms;android-35" "build-tools;35.0.0" "ndk;27.0.12077973"
+    "platforms;android-36" "build-tools;36.0.0" "ndk;28.0.12674087"
 ```
 
 ## 2. Create the upload keystore
