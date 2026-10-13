@@ -24,16 +24,26 @@ yes | /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
 
 ## 2. Create the upload keystore
 
+Signing keys live in one XDG system for every app and channel:
+`$XDG_DATA_HOME/keystores/<app>/<channel>-upload.jks`
+(default `$XDG_DATA_HOME` is `~/.local/share`). A keystore is
+irreplaceable *data*, not configuration — never `~/.android` (that
+directory belongs to the SDK's own tooling: debug key, adb keys, AVDs)
+and never loose in `$HOME`.
+
 ```bash
-mkdir -p ~/.android
+KEYDIR="${XDG_DATA_HOME:-$HOME/.local/share}/keystores/ontrack"
+mkdir -p "$KEYDIR" && chmod 700 "${XDG_DATA_HOME:-$HOME/.local/share}/keystores" "$KEYDIR"
 keytool -genkey -v \
-  -keystore ~/.android/ontrack-upload.jks \
+  -keystore "$KEYDIR/google-play-upload.jks" \
   -alias ontrack-upload \
   -keyalg RSA -keysize 4096 -validity 10000
+chmod 600 "$KEYDIR/google-play-upload.jks"
 
-# Add credentials to ~/.gradle/gradle.properties:
+# Add credentials to ~/.gradle/gradle.properties
+# (the heredoc expands $KEYDIR now, so the file gets the absolute path):
 cat >> ~/.gradle/gradle.properties <<EOF
-ONTRACK_KEYSTORE=$HOME/.android/ontrack-upload.jks
+ONTRACK_KEYSTORE=$KEYDIR/google-play-upload.jks
 ONTRACK_KEY_ALIAS=ontrack-upload
 ONTRACK_KEYSTORE_PASS=<set-me>
 ONTRACK_KEY_PASS=<set-me>
@@ -114,5 +124,5 @@ Then rebuild with `scripts/build-android.sh`.
   matches the one in `sdkmanager` (currently `27.0.12077973`).
 - **`linker not found`** — `cargo install cargo-ndk` and re-run.
 - **AAB rejected by Play (signing)** — verify `keytool -list -v
-  -keystore ~/.android/ontrack-upload.jks` shows the alias and that
-  `gradle.properties` matches.
+  -keystore "${XDG_DATA_HOME:-$HOME/.local/share}/keystores/ontrack/google-play-upload.jks"`
+  shows the alias and that `gradle.properties` matches.
