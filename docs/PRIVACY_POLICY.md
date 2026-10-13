@@ -1,5 +1,5 @@
 ONTrack – Privacy Policy
-Last updated: September 7, 2026
+Last updated: October 13, 2026
 
 This Privacy Policy explains how ONTrack (“the App”) handles information when you use it. By using the App, you agree to the practices described in this Policy.
 
@@ -10,6 +10,8 @@ If you do not agree with this Policy, please do not use the App.
 The App collects information that you voluntarily enter, such as:
 
 Job addresses, stop lists, and route configuration you add to plan a route.
+
+Job and address lists you import from a file you select (CSV or spreadsheet). The App reads the file on your device to build your stop list — the file itself is never uploaded anywhere — and the addresses it contains are handled exactly like addresses you type, including Section 3 when they are geocoded or routed. On Android, reading a file outside the App's own storage uses the storage permission on API 32 and below.
 
 Feedback you send us by email or other support channels.
 
