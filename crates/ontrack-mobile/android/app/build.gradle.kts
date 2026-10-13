@@ -5,6 +5,8 @@ plugins {
 android {
     namespace   = "ai.qompass.ontrack"
     compileSdk  = 36
+    buildToolsVersion = "37.0.0"
+    ndkVersion = "30.0.16248370"
 
     val ndkHomeEnv: String? = System.getenv("ANDROID_NDK_HOME")
     if (ndkHomeEnv != null) {

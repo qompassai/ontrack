@@ -17,9 +17,9 @@ yay -S android-sdk android-sdk-platform-tools android-sdk-build-tools \
 # Accept all licenses
 yes | /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
 
-# Install platform 36 + matching build-tools + NDK 28
+# Install platform 36 + latest build-tools + NDK r30
 /opt/android-sdk/cmdline-tools/latest/bin/sdkmanager \
-    "platforms;android-36" "build-tools;36.0.0" "ndk;28.0.12674087"
+    "platforms;android-36" "build-tools;37.0.0" "ndk;30.0.16248370"
 ```
 
 ## 2. Create the upload keystore
@@ -140,7 +140,7 @@ Then rebuild with `scripts/build-android.sh`.
 - **`License for package … not accepted`** — re-run the
   `sdkmanager --licenses` step.
 - **NDK ABI mismatch** — ensure `ndkVersion` in `app/build.gradle.kts`
-  matches the one in `sdkmanager` (currently `27.0.12077973`).
+  matches the one in `sdkmanager` (currently `30.0.16248370`).
 - **`linker not found`** — `cargo install cargo-ndk` and re-run.
 - **AAB rejected by Play (signing)** — verify `keytool -list -v
   -keystore "${XDG_DATA_HOME:-$HOME/.local/share}/keystores/ontrack/google-play-upload.jks"`

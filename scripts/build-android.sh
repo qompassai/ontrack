@@ -47,12 +47,24 @@ export ANDROID_HOME
 export ANDROID_SDK_ROOT="$ANDROID_HOME"
 
 if [ -z "${ANDROID_NDK_HOME:-}" ]; then
-    NDK_DIR=$(ls -d "$ANDROID_HOME"/ndk/* 2> /dev/null | sort -V | tail -n1 || true)
-    [ -n "$NDK_DIR" ] || {
-        echo "✗ no NDK installed under $ANDROID_HOME/ndk/"
-        exit 1
-    }
-    export ANDROID_NDK_HOME="$NDK_DIR"
+    # Deterministic NDK selection: the version declared as ndkVersion in
+    # app/build.gradle.kts wins when it is installed; the newest installed
+    # NDK is the fallback (e.g. trees that declare no ndkVersion). An
+    # explicit ANDROID_NDK_HOME from the caller (build-release.sh,
+    # fdroidserver) always takes precedence over both.
+    DECLARED_NDK=$(sed -n 's/.*ndkVersion[[:space:]]*=[[:space:]]*"\([0-9.]*\)".*/\1/p' "$ANDROID_DIR/app/build.gradle.kts" | head -n1)
+    if [ -n "$DECLARED_NDK" ] && [ -d "$ANDROID_HOME/ndk/$DECLARED_NDK" ]; then
+        export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/$DECLARED_NDK"
+        echo "→ NDK: using declared ndkVersion $DECLARED_NDK"
+    else
+        NDK_DIR=$(ls -d "$ANDROID_HOME"/ndk/* 2> /dev/null | sort -V | tail -n1 || true)
+        [ -n "$NDK_DIR" ] || {
+            echo "✗ no NDK installed under $ANDROID_HOME/ndk/"
+            exit 1
+        }
+        export ANDROID_NDK_HOME="$NDK_DIR"
+        echo "→ NDK: using newest installed ($(basename "$NDK_DIR"))"
+    fi
 fi
 export ANDROID_NDK_ROOT="$ANDROID_NDK_HOME"
 export NDK_HOME="$ANDROID_NDK_HOME"

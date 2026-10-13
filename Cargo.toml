@@ -51,6 +51,15 @@ cpal        = "0.15"
 hound       = "3"
 whisper-rs  = "0.13"
 
+# skia-bindings is vendored with a minimal build-time patch: its source
+# build passes clang unversioned Android target triples, which current
+# NDK headers reject (no upstream prebuilt binaries exist for armv7
+# Android, so the source build is unavoidable there). See
+# third-party/skia-bindings/VENDORED.md for the full rationale, the
+# exact diff, and the removal condition.
+[patch.crates-io]
+skia-bindings = { path = "third-party/skia-bindings" }
+
 [profile.release]
 debug         = true       # full DWARF; required for native-debug-symbols.zip
 strip         = false      # do NOT strip - we strip manually for the AAB only
