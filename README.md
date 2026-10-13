@@ -3,6 +3,7 @@
 <p align="center">
   <img src="docs/media/ontrack-hero.png" alt="ONTrack — A Practical Route Optimizer" width="720">
 </p>
+<a href="./LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License: Apache 2.0"></a>
 
 Route optimizer for field technicians and service/delivery crews.
 Import a list of stops, get back an efficient driving order, and open it in
@@ -208,4 +209,5 @@ Application ID: `ai.qompass.ontrack`
 
 ## License
 
-Apache License 2.0 — see [LICENSE.md](LICENSE.md).
+This project is licensed under the [Apache License, Version 2.0](./LICENSE).
+
