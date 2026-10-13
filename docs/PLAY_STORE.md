@@ -71,6 +71,19 @@ bash scripts/build-android.sh
 # Produces: crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab
 ```
 
+To build with the signing passwords fed from `pass` instead of
+`gradle.properties` (the same four names, supplied as environment
+variables), use the wrapper: it exports the inputs from the
+`qompassai/ontrack/upload-keystore-password` and
+`qompassai/ontrack/upload-key-password` entries in memory and then
+runs the build above. `--dry-run` proves the keystore and the pass
+entries resolve without building:
+
+```bash
+bash scripts/build-release.sh            # signed AAB, credentials from pass
+bash scripts/build-release.sh --dry-run  # resolve-only check
+```
+
 Or directly via Gradle:
 
 ```bash
