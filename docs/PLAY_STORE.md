@@ -31,24 +31,30 @@ irreplaceable *data*, not configuration — never `~/.android` (that
 directory belongs to the SDK's own tooling: debug key, adb keys, AVDs)
 and never loose in `$HOME`.
 
-```bash
-KEYDIR="${XDG_DATA_HOME:-$HOME/.local/share}/keystores/ontrack"
-mkdir -p "$KEYDIR" && chmod 700 "${XDG_DATA_HOME:-$HOME/.local/share}/keystores" "$KEYDIR"
-keytool -genkey -v \
-  -keystore "$KEYDIR/google-play-upload.jks" \
-  -alias ontrack-upload \
-  -keyalg RSA -keysize 4096 -validity 10000
-chmod 600 "$KEYDIR/google-play-upload.jks"
+Creation is a script, not a manual command — `scripts/keystore.sh`
+(the light-show pattern: canonical path as its default, refuses to
+overwrite an existing keystore, `chmod 600`, passwords prompted by
+keytool itself so they never appear in argv; `--dry-run` proves the
+command line first with a throwaway key):
 
-# Add credentials to ~/.gradle/gradle.properties
-# (the heredoc expands $KEYDIR now, so the file gets the absolute path):
-cat >> ~/.gradle/gradle.properties <<EOF
-ONTRACK_KEYSTORE=$KEYDIR/google-play-upload.jks
+```bash
+scripts/keystore.sh --dry-run   # rehearse
+scripts/keystore.sh             # create the real key (interactive)
+```
+
+Then add credentials to ~/.gradle/gradle.properties — the script prints
+these same four lines at the end with the absolute path already filled
+in; complete the two passwords with the ones you just gave keytool:
+
+```properties
+ONTRACK_KEYSTORE=/home/phaedrus/.local/share/keystores/ontrack/google-play-upload.jks
 ONTRACK_KEY_ALIAS=ontrack-upload
 ONTRACK_KEYSTORE_PASS=<set-me>
 ONTRACK_KEY_PASS=<set-me>
-EOF
 ```
+
+(The same four names work as environment variables instead;
+`build.gradle.kts` reads the environment first.)
 
 ## 3. Configure SDK path
 
