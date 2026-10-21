@@ -30,7 +30,7 @@ whisper-rs ships a fix.
 
 ## Build paths
 
-**BSP**: `.bsp/cargo.json` is the connection card Matt's Neovim BSP client
+**BSP**: `.bsp/cargo.json` is the connection card Owner's Neovim BSP client
 reads. cargo-bsp itself is unmaintained and normally not installed — the card
 records the intent; the working fallback is plain cargo (or bacon).
 

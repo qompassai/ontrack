@@ -1,6 +1,6 @@
 ---
 name: rust-development
-description: "Rust development wired to Matt's Neovim toolchain: rust-analyzer, bacon/bacon-ls background checks, lldb-dap debugging, cargo-bsp builds, cargo-deny policy, Tiger Style Rust. Use when writing, reviewing, debugging, or testing Rust code."
+description: "Rust development wired to Owner's Neovim toolchain: rust-analyzer, bacon/bacon-ls background checks, lldb-dap debugging, cargo-bsp builds, cargo-deny policy, Tiger Style Rust. Use when writing, reviewing, debugging, or testing Rust code."
 allowed-tools: Glob, Grep, Read, Bash, Edit, Write, TodoWrite, WebFetch, WebSearch
 metadata:
   adapted-from: laurigates/claude-plugins rust-plugin/skills/rust-development/SKILL.md
@@ -9,7 +9,7 @@ metadata:
 
 # rust-development
 
-## Rust Development (Matt's toolchain)
+## Rust Development (Owner's toolchain)
 
 Expert Rust development that assumes the diver Neovim setup: rust-analyzer for
 IDE services, **bacon-ls** for continuous background checks, **lldb-dap** for
@@ -35,7 +35,7 @@ this skill covers workflow and tooling, not style rules.
 - **Subagent delegation**: Rust work fans out well — one subagent per crate or
   per workstream (build, test, debug). See "Structured subagent use" below.
 
-## The toolchain (how Matt's setup actually works)
+## The toolchain (how Owner's setup actually works)
 
 **rust-analyzer** (`rustana_ls`): assists, completions, diagnostics-as-you-type.
 `checkOnSave` is **off** — on-save/on-change checking is bacon-ls's job, not

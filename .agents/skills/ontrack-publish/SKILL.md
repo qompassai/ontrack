@@ -1,6 +1,6 @@
 ---
 name: "ontrack-publish"
-description: "Publish ONTrack (ai.qompass.ontrack) to Google Play and F-Droid: fastlane metadata tree, fdroiddata recipe, Android build and test gates on the primo toolchain, TODO.md tracking, and the operator-only boundary. Trigger when Matt asks to finish, publish, or ship ONTrack."
+description: "Publish ONTrack (ai.qompass.ontrack) to Google Play and F-Droid: fastlane metadata tree, fdroiddata recipe, Android build and test gates on the primo toolchain, TODO.md tracking, and the operator-only boundary. Trigger when Owner asks to finish, publish, or ship ONTrack."
 metadata:
   includeInPrompt: "true"
 ---
@@ -25,13 +25,13 @@ used to get ONTrack publish-ready: every gate, every trap found the hard way.
    ssh config. The sandbox has no Android toolchain.
 2. **Primo is authoritative** whenever it disagrees with the sandbox.
 3. **Never generate or handle signing material.** No keystores, no upload
-   keys, no passwords, no Play credentials. Those are operator-only (Matt).
-4. **Push discipline:** every push needs Matt's explicit one-time
+   keys, no passwords, no Play credentials. Those are operator-only (Owner).
+4. **Push discipline:** every push needs Owner's explicit one-time
    authorization naming the commits; authorizations are consumed on use.
    Fast-forward only — never force-push. Re-read the remote (`git ls-remote`)
    before pushing and verify byte-identical after.
 5. **Never reconstruct lost work** — the 2026-09-25 WIP-loss rule: restore
-   only Matt's exact machine copies.
+   only Owner's exact machine copies.
 6. **Report exactly what passed, failed, was skipped, or was pre-existing.**
    Never claim a gate you didn't run. Never weaken a gate to make it green.
 
@@ -146,7 +146,7 @@ Field contracts (each is a trap that fired once):
 5. **No `Description:` / `Name:` / `Summary:`** when the fastlane tree
    exists — those fields override the tree.
 6. **`AutoUpdateMode: None`** with `UpdateCheckMode: Tags` — decide with
-   Matt whether `Version` mode fits before the MR.
+   Owner whether `Version` mode fits before the MR.
 
 Recipe gates (run in a real fdroiddata checkout, not a scratch tree):
 
@@ -218,7 +218,7 @@ the SHA built, the gate output, the byte counts. Keep the remaining
 operator-only items (`keystore`, Play Console, fdroiddata MR, screenshots)
 as open `[ ]` items so nothing silently drops.
 
-## Operator-only (Matt) — agents never do these
+## Operator-only (Owner) — agents never do these
 
 - Generate and securely back up the upload keystore and its passwords
   **outside the repository**.
@@ -244,5 +244,5 @@ signature — stop. That is the operator boundary, not a missing setup step.
       the declared `output:` path, both ABIs inside.
 - [ ] `cargo test --workspace` green for the pushed tree.
 - [ ] TODO.md reflects the evidence; operator-only items remain open.
-- [ ] Commits pushed fast-forward with Matt's one-time authorization,
+- [ ] Commits pushed fast-forward with Owner's one-time authorization,
       remote verified byte-identical.
