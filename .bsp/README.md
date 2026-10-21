@@ -1,6 +1,6 @@
 # `.bsp/` — Build Server Protocol connection cards
 
-`cargo.json` is the BSP connection card Matt's Neovim BSP client
+`cargo.json` is the BSP connection card Owner's Neovim BSP client
 (`lua/bsp/servers/cargo.lua` in the diver config) reads: `name`, `argv`,
 `bspVersion`, `languages`.
 

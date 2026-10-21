@@ -13,4 +13,4 @@ desktop.
 or generate signing keys.
 
 **Consequence**: Publication automation stops at the signing boundary.
-Matt runs tbr-* himself.
+Owner runs tbr-* himself.

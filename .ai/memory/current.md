@@ -9,7 +9,7 @@ Desktop = egui, mobile = Slint.
 - **Two REAL UI bugs** in TODO.md before release:
   1. Giant gray rectangle on add-stop row.
   2. Home/Results/Settings tabs ignore touch.
-- **Remaining** (Matt-only): tbr-* scripts, dotfiles commit/push once WIP
+- **Remaining** (Owner-only): tbr-* scripts, dotfiles commit/push once WIP
   resolved, the two UI bugs, real-device validation.
 
 ## Standing rules

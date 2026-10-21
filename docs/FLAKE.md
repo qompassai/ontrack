@@ -45,7 +45,7 @@ Fix: the flake adds nix `clang` to devTools and exports
 `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER` (nix clang wrapper) in the
 devShell and every app, overriding the ambient config's linker for flake
 builds only. All artifacts -- including proc-macro dylibs -- then link the
-nix glibc, matching the rustc runtime. Matt's ambient config is untouched,
+nix glibc, matching the rustc runtime. Owner's ambient config is untouched,
 so his non-nix builds keep using /usr/bin/clang.
 
 Safety-check agreement: `cargo deny check` honors `deny.toml`'s `[advisories]`
@@ -120,7 +120,7 @@ worktree-clean check fails only on *new* dirt (reports/, target/, and
 - **Android APK/AAB builds** need cargo-ndk + the Android SDK/NDK, which are
   not in nixpkgs. They stay primo-local (`scripts/build-android.sh`,
   `ANDROID_HOME=/opt/android-sdk`). The release app records this as SKIP.
-- **No CI workflows.** Matt does not want CI; there is no
+- **No CI workflows.** Owner does not want CI; there is no
   `.github/workflows` and none will be added.
 - **The `voice` feature is excluded** from all gates (default features
   only): whisper-rs 0.13.2's bindings are broken upstream. Re-add
@@ -137,11 +137,11 @@ worktree-clean check fails only on *new* dirt (reports/, target/, and
 
 ## Human-gated boundary (never executed by these apps)
 
-- `scripts/sign.sh` — verifies release APK/AAB signatures (needs Matt's
+- `scripts/sign.sh` — verifies release APK/AAB signatures (needs Owner's
   signed artifacts)
 - `scripts/build-android-release.sh` — builds the release APK/AAB
-  (signing needs Matt's keystore)
+  (signing needs Owner's keystore)
 - Play Console submission, F-Droid submission, keystore generation
 
-Finished state is everything done *except* those scripts, which Matt runs
+Finished state is everything done *except* those scripts, which Owner runs
 himself.

@@ -15,13 +15,13 @@ bacon test                     # watch + tests on change
 bacon check                    # watch + cargo check on change
 ```
 
-bacon-ls writes diagnostics to `.bacon-locations` (already wired in Matt's
+bacon-ls writes diagnostics to `.bacon-locations` (already wired in Owner's
 Neovim config). Note: jobs use default features only — the optional `voice`
 feature is broken upstream (whisper-rs 0.13.2).
 
 ## Build Server Protocol
 
-`.bsp/cargo.json` is the BSP connection card for Matt's Neovim BSP client.
+`.bsp/cargo.json` is the BSP connection card for Owner's Neovim BSP client.
 cargo-bsp is unmaintained and not installed, so the card is currently inert;
 the working fallback is plain `cargo check` / `cargo build` (or bacon).
 See `.bsp/README.md`.
@@ -41,7 +41,7 @@ Point lldb-dap at `target/debug/ontrack-mobile-preview` (or
 
 ```
 scripts/build-android.sh apk    # unsigned release APK (cargo-ndk + Gradle)
-scripts/build-android.sh aab    # release bundle (needs Matt's keystore to sign)
+scripts/build-android.sh aab    # release bundle (needs Owner's keystore to sign)
 scripts/build-android.sh both
 ```
 
