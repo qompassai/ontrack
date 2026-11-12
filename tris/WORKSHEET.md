@@ -7,7 +7,7 @@ This is one product's slice of the combined six-product submission worksheet pre
 ## Shared submitter fields (rows 3–6, repeated on all six forms)
 
 - Requestor (3): Matt A. Porter — Field Service Technician (FST), matthew.porter@tdstelecom.com
-- Requestor's Manager (4): [INPUT NEEDED: your manager's name]
+- Requestor's Manager (4): Josh Barter
 - PAT Manager (5): [INPUT NEEDED: PAT Manager name — note: the process document names an Internal Employee Tools PAT contact as the AIR-access contact; that is not evidence he is the PAT Manager for this request]
 - CoE Director (6): [INPUT NEEDED: CoE Director for the accountable Agile team — if left blank, the TRIS Administrator determines the accountable team, AM, and AD per the process document]
 
